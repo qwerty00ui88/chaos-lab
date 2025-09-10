@@ -1,0 +1,104 @@
+# ==========================
+# OS / IDE
+# ==========================
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.iml
+.idea/
+.vscode/
+
+# ==========================
+# Logs
+# ==========================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+hs_err_pid*
+
+# ==========================
+# Node.js / React (Frontend)
+# ==========================
+node_modules/
+dist/
+build/
+.cache/
+.next/
+out/
+
+# Env files
+.env
+.env.local
+.env.*.local
+
+# ==========================
+# Java / Spring Boot (Backend)
+# ==========================
+target/
+build/
+*.class
+*.war
+*.jar
+*.ear
+
+# IDE specific
+*.classpath
+*.project
+*.settings/
+*.factorypath
+
+# Database files
+*.db
+*.h2.db
+*.sqlite
+
+# ==========================
+# Kubernetes / IaC
+# ==========================
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+terraform.rc
+terraform.tfstate.backup
+
+# Helm
+charts/*/charts/
+*.tgz
+
+# Kubernetes local
+.kube/
+
+# ==========================
+# Docs / Generated Assets
+# ==========================
+docs/
+*.pptx
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# ==========================
+# Security
+# ==========================
+*.pem
+*.key
+*.crt
+*.cert
+*.der
+*.p12
+*.jks
+
+# ==========================
+# Misc
+# ==========================
+coverage/
+tmp/
