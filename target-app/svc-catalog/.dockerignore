@@ -1,0 +1,18 @@
+# OS/IDE
+.DS_Store
+.idea
+.vscode
+*.iml
+
+# Git
+.git
+.gitignore
+
+# Logs
+*.log
+
+# Maven/Gradle build output
+target
+*.jar
+*.war
+
