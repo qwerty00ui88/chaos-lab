@@ -2,7 +2,7 @@ name: CI - Build & Push to ECR
 
 on:
   push:
-    branches: [ "dev" ]   # dev 브랜치 push 시 실행 (완성 단계에서 main으로 변경 가능)
+    branches: [ "dev" ]
 
 jobs:
   build-and-push:
