@@ -1,0 +1,45 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+  namespace: default
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-northeast-2:446447036578:certificate/9ee97d4d-e2c5-495f-ba0f-ba5d5b228c7f
+spec:
+  ingressClassName: alb   # 최신 권장 방식
+  rules:
+  - host: app.chaos-lab.org
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: app-frontend
+            port:
+              number: 80
+      - path: /api/user
+        pathType: Prefix
+        backend:
+          service:
+            name: svc-user
+            port:
+              number: 80
+      - path: /api/catalog
+        pathType: Prefix
+        backend:
+          service:
+            name: svc-catalog
+            port:
+              number: 80
+      - path: /api/order
+        pathType: Prefix
+        backend:
+          service:
+            name: svc-order
+            port:
+              number: 80
+
