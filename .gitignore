@@ -78,7 +78,7 @@ charts/*/charts/
 # ==========================
 # Docs / Generated Assets
 # ==========================
-docs/
+# Generated exports can be ignored individually if needed, but keep source docs tracked.
 *.pptx
 *.pdf
 *.png

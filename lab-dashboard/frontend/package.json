@@ -1,0 +1,9 @@
+{
+  "name": "lab-dashboard-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "start": "echo \"TODO: implement dashboard dev server\"",
+    "build": "echo \"TODO: implement dashboard build\""
+  }
+}
