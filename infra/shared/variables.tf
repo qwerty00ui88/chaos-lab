@@ -1,6 +1,12 @@
 variable "region" {
-  description = "AWS region used across stacks."
+  description = "AWS region for deployments."
   type        = string
+}
+
+variable "aws_profile" {
+  description = "Named AWS CLI profile for Terraform authentication."
+  type        = string
+  default     = "default"
 }
 
 variable "environment" {

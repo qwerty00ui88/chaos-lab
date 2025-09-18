@@ -1,7 +1,9 @@
-// Shared naming conventions appear here.
 locals {
-  tags = {
-    Project     = "chaos-lab"
+  project_name = "chaos-lab"
+
+  default_tags = {
+    Project     = local.project_name
     Environment = var.environment
+    ManagedBy   = "terraform"
   }
 }

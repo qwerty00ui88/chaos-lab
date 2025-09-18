@@ -1,4 +1,6 @@
-// Central place to document backend configuration conventions.
 locals {
-  project_name = "chaos-lab"
+  backend_paths = {
+    static = "../states/static.tfstate"
+    onoff  = "../states/onoff.tfstate"
+  }
 }
