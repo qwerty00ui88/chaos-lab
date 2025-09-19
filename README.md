@@ -9,6 +9,7 @@
 - `.github/workflows/`: GitHub Actions for CI/CD (build, deploy backend, deploy frontend).
 - `ci-cd/`: Shared pipeline templates and documentation.
 - `docs/`: Architecture, runbooks, costs, presentation artifacts.
+- `infra/modules/lightsail`: Terraform module for the Lightsail dashboard host (Docker + Terraform/Helm runtime).
 
 ## Roadmap Sprint (Sep 18 - Sep 30)
 | Date | Theme |
@@ -27,7 +28,8 @@
 ## Getting Started
 1. Install toolchain: Terraform, AWS CLI v2, kubectl, Helm, Docker, Node.js, Java 17.
 2. Configure AWS CLI profile with access to the chaos-lab account.
-3. (Coming soon) Run `make bootstrap` to initialise local Terraform states.
+3. Provision Terraform backend once: `terraform -chdir=infra/bootstrap apply`.
+4. Migrate existing state to S3: `terraform -chdir=infra/static init -migrate-state` and `terraform -chdir=infra/onoff init -migrate-state`.
 
 ## Status
 - [ ] Infrastructure scaffolding
@@ -36,3 +38,7 @@
 - [ ] CI/CD pipelines
 - [ ] Documentation set
 
+## Quick Commands
+- `scripts/onoff/apply.sh` / `destroy.sh`: toggle 인프라(Terraform) 적용/제거.
+- `scripts/onoff/helm-rollout.sh`: ECR 이미지 태그를 기반으로 Helm 배포.
+- 자세한 사용법은 `docs/runbook/onoff-cli.md` 참고.

@@ -1,5 +1,9 @@
 terraform {
-  backend "local" {
-    path = "../states/onoff.tfstate"
+  backend "s3" {
+    bucket         = "chaos-lab-terraform-state"
+    key            = "onoff/terraform.tfstate"
+    region         = "ap-northeast-2"
+    dynamodb_table = "chaos-lab-terraform-locks"
+    encrypt        = true
   }
 }

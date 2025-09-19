@@ -12,6 +12,11 @@ locals {
     for key, subnet in aws_subnet.private :
     key => subnet.arn
   }
+
+  public_subnet_ids_by_key = {
+    for key, subnet in aws_subnet.public :
+    key => subnet.id
+  }
 }
 
 resource "aws_vpc" "this" {
@@ -39,6 +44,31 @@ resource "aws_subnet" "private" {
   })
 }
 
+resource "aws_subnet" "public" {
+  for_each = var.public_subnets
+
+  vpc_id                  = aws_vpc.this.id
+  cidr_block              = each.value.cidr
+  availability_zone       = each.value.az
+  map_public_ip_on_launch = true
+
+  tags = merge(local.base_tags, {
+    Component = "subnet"
+    Scope     = "public"
+    Name      = "${var.name}-${each.key}"
+  })
+}
+
+resource "aws_internet_gateway" "this" {
+  count = length(var.public_subnets) > 0 ? 1 : 0
+
+  vpc_id = aws_vpc.this.id
+
+  tags = merge(local.base_tags, {
+    Component = "internet-gateway"
+  })
+}
+
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.this.id
 
@@ -53,6 +83,32 @@ resource "aws_route_table_association" "private" {
 
   subnet_id      = each.value.id
   route_table_id = aws_route_table.private.id
+}
+
+resource "aws_route_table" "public" {
+  count = length(var.public_subnets) > 0 ? 1 : 0
+
+  vpc_id = aws_vpc.this.id
+
+  tags = merge(local.base_tags, {
+    Component = "route-table"
+    Scope     = "public"
+  })
+}
+
+resource "aws_route" "public_internet" {
+  count = length(var.public_subnets) > 0 ? 1 : 0
+
+  route_table_id         = aws_route_table.public[0].id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.this[0].id
+}
+
+resource "aws_route_table_association" "public" {
+  for_each = aws_subnet.public
+
+  subnet_id      = each.value.id
+  route_table_id = aws_route_table.public[0].id
 }
 
 resource "aws_security_group" "alb" {

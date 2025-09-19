@@ -27,10 +27,12 @@ provider "aws" {
 }
 
 data "terraform_remote_state" "static" {
-  backend = "local"
+  backend = "s3"
 
   config = {
-    path = "../states/static.tfstate"
+    bucket = "chaos-lab-terraform-state"
+    key    = "static/terraform.tfstate"
+    region = var.region
   }
 }
 
@@ -50,7 +52,7 @@ locals {
     try(local.subnet_ids_map["private-db-b"], null)
   ])
 
-  alb_subnet_ids = local.node_subnet_ids
+  alb_subnet_ids = length(try(local.static_outputs.public_subnet_ids, [])) > 0 ? try(local.static_outputs.public_subnet_ids, []) : local.node_subnet_ids
 
   alb_security_group_id      = try(local.security_groups["alb"], null)
   eks_node_security_group_id = try(local.security_groups["eks_nodes"], null)

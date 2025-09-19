@@ -28,3 +28,9 @@ This folder hosts reusable GitHub Actions workflows and documentation for the bu
 - The composite action in `.github/actions/aws-setup` centralises AWS credential config and ECR login.
 
 Future tasks: add deployment workflows once Helm charts and S3 distribution scripts are finalised.
+
+## Deploy to EKS workflow
+- `.github/workflows/deploy-eks.yml` — runs Helm upgrades for `svc-user`, `svc-catalog`, `svc-order` using images in ECR.
+- Triggers: manual (`workflow_dispatch`) or when charts change on `main`/`dev`.
+- Requires repository variables: `AWS_REGION`, `ECR_REGISTRY`, `ECR_REPOSITORY_PREFIX`, `EKS_CLUSTER_NAME`.
+- Uses the same `AWS_ROLE_TO_ASSUME` secret (OIDC) for cluster access. Helm values override image repo/tag per release.

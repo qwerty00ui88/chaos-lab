@@ -16,6 +16,15 @@ variable "private_subnets" {
   }))
 }
 
+variable "public_subnets" {
+  description = "Map of public subnets (key = logical name)."
+  type = map(object({
+    cidr = string
+    az   = string
+  }))
+  default = {}
+}
+
 variable "tags" {
   description = "Additional tags to merge onto all resources."
   type        = map(string)

@@ -13,7 +13,22 @@ output "private_subnet_ids_map" {
   value       = module.vpc.private_subnet_ids_map
 }
 
+output "public_subnet_ids" {
+  description = "List of public subnet IDs."
+  value       = module.vpc.public_subnet_ids
+}
+
+output "public_subnet_ids_map" {
+  description = "Map of public subnet IDs keyed by logical name."
+  value       = module.vpc.public_subnet_ids_map
+}
+
 output "security_group_ids" {
   description = "Security group IDs for ALB, EKS nodes, and RDS."
   value       = module.vpc.security_group_ids
+}
+
+output "lightsail_dashboard_ip" {
+  description = "Public IP address of the Lightsail dashboard host"
+  value       = var.enable_lightsail ? module.lightsail_dashboard[0].public_ip : null
 }
