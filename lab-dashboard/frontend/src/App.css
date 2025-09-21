@@ -1,0 +1,386 @@
+:root {
+  color-scheme: light;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f5f6fb;
+  color: #111827;
+}
+
+body {
+  margin: 0;
+  background: #f5f6fb;
+}
+
+button,
+select,
+input {
+  font-family: inherit;
+}
+
+.dashboard {
+  min-height: 100vh;
+  background: #f5f6fb;
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 28px 32px 12px;
+}
+
+.main-header h1 {
+  margin: 0 0 6px 0;
+  font-size: 28px;
+}
+
+.tagline {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.control {
+  display: flex;
+  flex-direction: column;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #64748b;
+  gap: 4px;
+}
+
+.control select {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #cbd5f5;
+  font-size: 14px;
+  background: #ffffff;
+}
+
+.ghost {
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  background: transparent;
+  color: #1e293b;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ghost:hover {
+  background: rgba(148, 163, 184, 0.15);
+}
+
+.ghost.active {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+  color: #f8fafc;
+}
+
+.main-body {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 0 32px 32px;
+}
+
+.top-grid {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 24px;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 22px 48px -32px rgba(15, 23, 42, 0.35);
+  padding: 24px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.kpi-card .kpi-metrics {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.kpi-label {
+  display: block;
+  color: #94a3b8;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.kpi-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.kpi-trend {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #16a34a;
+}
+
+.sparkline-placeholder {
+  height: 110px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.25), rgba(148, 163, 184, 0.05));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.preview-card {
+  min-height: 320px;
+}
+
+.preview-card .preview-body {
+  flex: 1;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 14px;
+  padding: 36px 32px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: center;
+}
+
+.preview-card h3 {
+  margin: 0;
+  font-size: 20px;
+  color: #1f2937;
+}
+
+.preview-card p {
+  margin: 0;
+  color: #475569;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.preview-card small {
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.experiment-card header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.experiment-card .hint {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.experiment-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.experiment-buttons button {
+  border: none;
+  background: #0f172a;
+  color: #f8fafc;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+
+.experiment-buttons button:hover {
+  transform: translateY(-1px);
+}
+
+.crash-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+
+.crash-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.crash-form input {
+  padding: 8px 10px;
+  border: 1px solid #cbd5f5;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.tasks-panel .table,
+.logs-card .table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table th,
+.table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(203, 213, 225, 0.6);
+  text-align: left;
+}
+
+.table tbody tr {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.table tbody tr.active {
+  background: rgba(59, 130, 246, 0.16);
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge.pending {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.badge.running {
+  background: #facc15;
+  color: #422006;
+}
+
+.badge.succeeded {
+  background: #22c55e;
+  color: #052e16;
+}
+
+.badge.failed {
+  background: #ef4444;
+  color: #450a0a;
+}
+
+.logs-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.logs-status {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.phase-indicator {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.phase-indicator .active {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.phase-indicator code {
+  background: rgba(15, 23, 42, 0.08);
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+
+.logs-table tbody tr {
+  cursor: default;
+}
+
+.logs-table td {
+  font-size: 13px;
+}
+
+.logs-table .mono {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+.status {
+  font-size: 14px;
+  margin-left: 8px;
+}
+
+.status.success {
+  color: #15803d;
+  cursor: pointer;
+}
+
+.status.error {
+  color: #dc2626;
+  cursor: pointer;
+}
+
+.status.muted {
+  color: #94a3b8;
+}
+
+.main-footer {
+  margin-top: auto;
+  padding: 16px 32px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(248, 250, 252, 0.85);
+}
+
+.main-footer strong {
+  font-size: 13px;
+}
+
+@media (max-width: 960px) {
+  .main-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .top-grid {
+    grid-template-columns: 1fr;
+  }
+}
