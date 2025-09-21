@@ -29,19 +29,19 @@ variable "private_subnets" {
   }))
   default = {
     "private-node-a" = {
-      cidr = "10.0.1.0/24"
-      az   = "ap-northeast-2a"
-    }
-    "private-node-b" = {
-      cidr = "10.0.2.0/24"
-      az   = "ap-northeast-2b"
-    }
-    "private-db-a" = {
       cidr = "10.0.3.0/24"
       az   = "ap-northeast-2a"
     }
-    "private-db-b" = {
+    "private-node-b" = {
       cidr = "10.0.4.0/24"
+      az   = "ap-northeast-2b"
+    }
+    "private-db-a" = {
+      cidr = "10.0.5.0/24"
+      az   = "ap-northeast-2a"
+    }
+    "private-db-b" = {
+      cidr = "10.0.6.0/24"
       az   = "ap-northeast-2b"
     }
   }
@@ -55,11 +55,11 @@ variable "public_subnets" {
   }))
   default = {
     "public-a" = {
-      cidr = "10.0.10.0/24"
+      cidr = "10.0.1.0/24"
       az   = "ap-northeast-2a"
     }
     "public-b" = {
-      cidr = "10.0.11.0/24"
+      cidr = "10.0.2.0/24"
       az   = "ap-northeast-2b"
     }
   }
@@ -111,6 +111,11 @@ variable "lightsail_allowed_ports" {
     {
       from     = 443
       to       = 443
+      protocol = "tcp"
+    },
+    {
+      from     = 22
+      to       = 22
       protocol = "tcp"
     }
   ]
