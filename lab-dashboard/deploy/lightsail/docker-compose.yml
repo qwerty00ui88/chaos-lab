@@ -1,0 +1,70 @@
+version: "3.9"
+
+services:
+  gateway:
+    image: nginx:1.27
+    container_name: chaos-dashboard-gateway
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - terraform-client
+      - chaos-injector
+      - log-streamer
+      - frontend
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    environment:
+      - LOG_STREAM_URL=http://log-streamer:8090/api/logs/stream
+    networks:
+      - chaos-dashboard
+
+  terraform-client:
+    image: ${ECR_REGISTRY}/${ECR_REPOSITORY_PREFIX}-terraform-client:${TERRAFORM_CLIENT_TAG}
+    container_name: chaos-dashboard-terraform-client
+    restart: unless-stopped
+    environment:
+      - AWS_REGION=${AWS_REGION}
+      - CHAOSLAB_SCRIPTS_BASE=/workspace/scripts
+      - EKS_CLUSTER_NAME=${EKS_CLUSTER_NAME}
+    volumes:
+      - ./scripts:/workspace/scripts:ro
+      - ./infra:/workspace/infra:ro
+    networks:
+      - chaos-dashboard
+
+  chaos-injector:
+    image: ${ECR_REGISTRY}/${ECR_REPOSITORY_PREFIX}-chaos-injector:${CHAOS_INJECTOR_TAG}
+    container_name: chaos-dashboard-chaos-injector
+    restart: unless-stopped
+    environment:
+      - TARGET_BASE_URL=http://gateway
+      - AWS_REGION=${AWS_REGION}
+    networks:
+      - chaos-dashboard
+
+  log-streamer:
+    image: ${ECR_REGISTRY}/${ECR_REPOSITORY_PREFIX}-log-streamer:${LOG_STREAMER_TAG}
+    container_name: chaos-dashboard-log-streamer
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    environment:
+      - AWS_REGION=${AWS_REGION}
+      - LOGSTREAM_CLOUDWATCH_ENABLED=true
+      - LOGSTREAM_CLOUDWATCH_REGION=${AWS_REGION}
+      - LOGSTREAM_CLOUDWATCH_LOG_GROUP_NAME=chaos-lab-dev-logs
+      - LOGSTREAM_CLOUDWATCH_LOG_STREAM_PREFIX=svc-
+    networks:
+      - chaos-dashboard
+
+  frontend:
+    image: ${ECR_REGISTRY}/${ECR_REPOSITORY_PREFIX}-dashboard-frontend:${FRONTEND_TAG}
+    container_name: chaos-dashboard-frontend
+    restart: unless-stopped
+    networks:
+      - chaos-dashboard
+
+networks:
+  chaos-dashboard:
+    driver: bridge

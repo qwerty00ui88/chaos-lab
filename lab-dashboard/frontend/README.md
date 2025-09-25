@@ -18,6 +18,7 @@ npm run dev
 ```bash
 VITE_BACKEND_URL=http://localhost:8080 \
 VITE_LOG_STREAM_URL=http://localhost:8090/api/logs/stream \
+VITE_LOG_STREAM_POST_URL=http://localhost:8090/api/logs \
 npm run dev
 ```
 
@@ -33,6 +34,7 @@ npm run preview
 - **Terraform Controls**: `/api/terraform/apply`, `/destroy`, `/helm/rollout` 엔드포인트를 호출하는 버튼.
 - **Chaos Experiments**: Pod crash(라벨/네임스페이스 지정), Order latency, CPU high, OOM, DB failover 실행.
 - **Recent Tasks**: `terraform-client`에서 수집한 태스크 목록과 로그 뷰어. 5초 간격으로 자동 갱신됩니다.
+- **Live Logs**: SSE로 스트리밍되는 `log-streamer` 로그와 테스트용 수동 전송 폼.
 
 ## 연동 전 체크리스트
 - 백엔드(`terraform-client`, `chaos-injector`)가 `http://localhost:8080`에서 실행 중인지 확인.

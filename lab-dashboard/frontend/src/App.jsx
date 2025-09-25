@@ -89,6 +89,12 @@ function useTasks(autoRefresh) {
 
 export default function App() {
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [manualLog, setManualLog] = useState({
+    source: 'dashboard-ui',
+    level: 'INFO',
+    message: ''
+  });
+  const [manualLogStatus, setManualLogStatus] = useState(null);
 
   const {
     tasks,
@@ -188,6 +194,8 @@ export default function App() {
   const eventSourceRef = useRef(null);
 
   const logStreamUrl = import.meta.env.VITE_LOG_STREAM_URL || 'http://localhost:8090/api/logs/stream';
+  const logStreamPostUrl = import.meta.env.VITE_LOG_STREAM_POST_URL
+    || logStreamUrl.replace(/\/stream$/, '');
 
   useEffect(() => {
     const controller = new AbortController();
@@ -234,6 +242,32 @@ export default function App() {
   }, [logStreamUrl]);
 
   const logs = liveLogs;
+
+  const submitManualLog = async (event) => {
+    event.preventDefault();
+    if (!manualLog.message.trim()) {
+      setManualLogStatus({ type: 'error', text: 'Message is required' });
+      return;
+    }
+
+    try {
+      await fetch(logStreamPostUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          timestamp: new Date().toISOString(),
+          source: manualLog.source,
+          level: manualLog.level,
+          message: manualLog.message,
+          traceId: 'manual-' + Date.now()
+        })
+      });
+      setManualLogStatus({ type: 'success', text: 'Manual log sent' });
+      setManualLog((prev) => ({ ...prev, message: '' }));
+    } catch (err) {
+      setManualLogStatus({ type: 'error', text: `Failed to post log: ${err.message}` });
+    }
+  };
 
   return (
     <div className="dashboard">
@@ -395,6 +429,48 @@ export default function App() {
                 )}
               </tbody>
             </table>
+
+            <form className="manual-log" onSubmit={submitManualLog}>
+              <h3>Send Test Log</h3>
+              <div className="manual-log-row">
+                <label>
+                  Source
+                  <input
+                    type="text"
+                    value={manualLog.source}
+                    onChange={(e) => setManualLog((prev) => ({ ...prev, source: e.target.value }))}
+                  />
+                </label>
+                <label>
+                  Level
+                  <select
+                    value={manualLog.level}
+                    onChange={(e) => setManualLog((prev) => ({ ...prev, level: e.target.value }))}
+                  >
+                    <option value="INFO">INFO</option>
+                    <option value="WARN">WARN</option>
+                    <option value="ERROR">ERROR</option>
+                  </select>
+                </label>
+              </div>
+              <label className="manual-log-message">
+                Message
+                <textarea
+                  rows={2}
+                  value={manualLog.message}
+                  onChange={(e) => setManualLog((prev) => ({ ...prev, message: e.target.value }))}
+                  placeholder="Describe the event..."
+                />
+              </label>
+              <button type="submit" className="ghost" disabled={!manualLog.message.trim()}>
+                Publish Log
+              </button>
+              {manualLogStatus && (
+                <p className={`status ${manualLogStatus.type === 'error' ? 'error' : 'success'}`}>
+                  {manualLogStatus.text}
+                </p>
+              )}
+            </form>
           </section>
 
           <section className="card logs-card">

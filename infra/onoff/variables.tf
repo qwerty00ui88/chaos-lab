@@ -50,6 +50,60 @@ variable "enable_ecr_vpce" {
   default     = false
 }
 
+variable "enable_cloudwatch_logs" {
+  description = "Whether to create a CloudWatch log group for target application logs."
+  type        = bool
+  default     = false
+}
+
+variable "enable_fluent_bit" {
+  description = "Deploy aws-for-fluent-bit via Helm when EKS is enabled."
+  type        = bool
+  default     = false
+}
+
+variable "cloudwatch_log_group_name" {
+  description = "Optional name for the CloudWatch log group. Defaults to <project>-<env>-logs."
+  type        = string
+  default     = ""
+}
+
+variable "cloudwatch_log_retention_in_days" {
+  description = "Retention period for CloudWatch logs."
+  type        = number
+  default     = 14
+}
+
+variable "cloudwatch_log_stream_names" {
+  description = "Set of log stream names to pre-create for services."
+  type        = set(string)
+  default     = []
+}
+
+variable "cloudwatch_log_kms_key_id" {
+  description = "Optional KMS key ARN for encrypting the log group."
+  type        = string
+  default     = null
+}
+
+variable "cloudwatch_log_stream_prefix" {
+  description = "Prefix for CloudWatch log streams created by Fluent Bit"
+  type        = string
+  default     = "svc-"
+}
+
+variable "fluent_bit_namespace" {
+  description = "Namespace to install Fluent Bit."
+  type        = string
+  default     = "aws-for-fluent-bit"
+}
+
+variable "fluent_bit_service_account_name" {
+  description = "Service account name for Fluent Bit."
+  type        = string
+  default     = "aws-for-fluent-bit"
+}
+
 variable "eks_version" {
   description = "EKS control plane version."
   type        = string

@@ -21,12 +21,20 @@ locals {
   lightsail_user_data = var.enable_lightsail ? templatefile(
     "../modules/lightsail/templates/user_data.sh.tpl",
     {
-      terraform_version     = var.lightsail_terraform_version
-      kubectl_version       = var.lightsail_kubectl_version
-      aws_region            = var.region
-      ecr_registry          = var.lightsail_ecr_registry
-      ecr_repository_prefix = var.lightsail_ecr_repository_prefix
-      eks_cluster_name      = var.lightsail_eks_cluster_name
+      terraform_version      = var.lightsail_terraform_version
+      kubectl_version        = var.lightsail_kubectl_version
+      aws_region             = var.region
+      ecr_registry           = var.lightsail_ecr_registry
+      ecr_repository_prefix  = var.lightsail_ecr_repository_prefix
+      eks_cluster_name       = var.lightsail_eks_cluster_name
+      dashboard_repo_url     = var.lightsail_dashboard_repo_url
+      dashboard_repo_branch  = var.lightsail_dashboard_repo_branch
+      dashboard_clone_path   = var.lightsail_dashboard_clone_path
+      dashboard_compose_path = var.lightsail_dashboard_compose_path
+      terraform_client_tag   = var.lightsail_terraform_client_tag
+      chaos_injector_tag     = var.lightsail_chaos_injector_tag
+      log_streamer_tag       = var.lightsail_log_streamer_tag
+      frontend_tag           = var.lightsail_frontend_tag
     }
   ) : ""
 }

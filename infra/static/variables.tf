@@ -150,3 +150,51 @@ variable "lightsail_eks_cluster_name" {
   type        = string
   default     = "chaos-lab-dev"
 }
+
+variable "lightsail_dashboard_repo_url" {
+  description = "Git repository URL containing dashboard deployment assets"
+  type        = string
+  default     = ""
+}
+
+variable "lightsail_dashboard_repo_branch" {
+  description = "Git branch checked out on the Lightsail host"
+  type        = string
+  default     = "main"
+}
+
+variable "lightsail_dashboard_clone_path" {
+  description = "Absolute path where the dashboard repository should be cloned"
+  type        = string
+  default     = "/opt/chaos-dashboard/app"
+}
+
+variable "lightsail_dashboard_compose_path" {
+  description = "Path to the docker-compose file (relative to clone path unless absolute)"
+  type        = string
+  default     = "deploy/lightsail/docker-compose.yml"
+}
+
+variable "lightsail_terraform_client_tag" {
+  description = "Container image tag for the terraform-client service"
+  type        = string
+  default     = "latest"
+}
+
+variable "lightsail_chaos_injector_tag" {
+  description = "Container image tag for the chaos-injector service"
+  type        = string
+  default     = "latest"
+}
+
+variable "lightsail_log_streamer_tag" {
+  description = "Container image tag for the log-streamer service"
+  type        = string
+  default     = "latest"
+}
+
+variable "lightsail_frontend_tag" {
+  description = "Container image tag for the dashboard frontend service"
+  type        = string
+  default     = "latest"
+}

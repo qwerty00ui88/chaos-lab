@@ -17,10 +17,10 @@ init-static:
 	terraform -chdir=$(TF_STATIC_DIR) init
 
 static-plan:
-	terraform -chdir=$(TF_STATIC_DIR) plan
+	terraform -chdir=$(TF_STATIC_DIR) plan -var-file=vars/base.tfvars
 
 static-apply:
-	terraform -chdir=$(TF_STATIC_DIR) apply
+	terraform -chdir=$(TF_STATIC_DIR) apply -var-file=vars/base.tfvars
 
 init-onoff:
 	terraform -chdir=$(TF_ONOFF_DIR) init

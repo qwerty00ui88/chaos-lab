@@ -341,6 +341,48 @@ input {
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
 }
 
+.manual-log {
+  margin-top: 20px;
+  border-top: 1px solid rgba(203, 213, 225, 0.6);
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.manual-log h3 {
+  margin: 0;
+  font-size: 15px;
+  color: #1f2937;
+}
+
+.manual-log-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.manual-log label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.manual-log input,
+.manual-log select,
+.manual-log textarea {
+  padding: 8px 10px;
+  border: 1px solid #cbd5f5;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.manual-log-message textarea {
+  resize: vertical;
+}
+
 .status {
   font-size: 14px;
   margin-left: 8px;

@@ -6,6 +6,7 @@
 - `infra/`: Terraform modules split into always-on and toggleable stacks.
 - `target-app/`: Target frontend and microservices deployed onto EKS.
 - `lab-dashboard/`: Lightsail-hosted control plane (Terraform runner, chaos injector, log streamer, UI).
+- `lab-dashboard/deploy/lightsail`: docker-compose + Nginx assets for the Lightsail host.
 - `.github/workflows/`: GitHub Actions for CI/CD (build, deploy backend, deploy frontend).
 - `ci-cd/`: Shared pipeline templates and documentation.
 - `docs/`: Architecture, runbooks, costs, presentation artifacts.
@@ -39,6 +40,7 @@
 - [ ] Documentation set
 
 ## Quick Commands
-- `scripts/onoff/apply.sh` / `destroy.sh`: toggle 인프라(Terraform) 적용/제거.
-- `scripts/onoff/helm-rollout.sh`: ECR 이미지 태그를 기반으로 Helm 배포.
-- 자세한 사용법은 `docs/runbook/onoff-cli.md` 참고.
+- `make static-plan` / `make static-apply`: Lightsail을 포함한 Static 스택을 검토/적용 (`infra/static/vars/base.tfvars` 사용).
+- `make onoff-plan` / `make on`: 토글 스택(EKS, Fluent Bit 등)을 검토/기동.
+- `make off`: 토글 스택 자원 제거.
+- 스크립트 기반 워크플로는 `docs/runbook` 디렉터리를 참고하세요.

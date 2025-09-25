@@ -1,2 +1,0 @@
-rootProject.name = "lab-dashboard-backend"
-include("terraform-client", "chaos-injector", "log-streamer", "libs")

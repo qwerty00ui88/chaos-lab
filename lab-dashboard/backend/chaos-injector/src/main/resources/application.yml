@@ -1,0 +1,11 @@
+chaoslab:
+  kubernetes:
+    namespace: target-app
+    config-path: ${KUBECONFIG:}
+    context: ${KUBECONTEXT:}
+  target:
+    base-url: ${TARGET_BASE_URL:http://target.chaos-lab.org}
+
+logging:
+  level:
+    root: INFO
