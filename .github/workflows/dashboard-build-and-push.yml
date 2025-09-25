@@ -21,19 +21,22 @@ jobs:
       matrix:
         include:
           - id: terraform-client
-            module: lab-dashboard/backend/terraform-client
+            context: lab-dashboard/backend/terraform-client
             dockerfile: lab-dashboard/backend/terraform-client/Dockerfile
+            module: terraform-client
             prebuild: maven
           - id: chaos-injector
-            module: lab-dashboard/backend/chaos-injector
+            context: lab-dashboard/backend/chaos-injector
             dockerfile: lab-dashboard/backend/chaos-injector/Dockerfile
+            module: chaos-injector
             prebuild: maven
           - id: log-streamer
-            module: lab-dashboard/backend/log-streamer
+            context: lab-dashboard/backend/log-streamer
             dockerfile: lab-dashboard/backend/log-streamer/Dockerfile
+            module: log-streamer
             prebuild: maven
           - id: dashboard-frontend
-            module: lab-dashboard/frontend
+            context: lab-dashboard/frontend
             dockerfile: lab-dashboard/frontend/Dockerfile
             prebuild: npm
             build_args: |
@@ -64,6 +67,7 @@ jobs:
 
       - name: Build backend artifact
         if: matrix.prebuild == 'maven'
+        working-directory: lab-dashboard/backend
         run: mvn -pl ${{ matrix.module }} -am package -DskipTests
 
       - name: Set up Node.js
@@ -72,11 +76,11 @@ jobs:
         with:
           node-version: '20'
           cache: npm
-          cache-dependency-path: ${{ matrix.module }}/package-lock.json
+          cache-dependency-path: ${{ matrix.context }}/package-lock.json
 
       - name: Build frontend bundle
         if: matrix.prebuild == 'npm'
-        working-directory: ${{ matrix.module }}
+        working-directory: ${{ matrix.context }}
         run: npm ci && npm run build
 
       - name: Ensure ECR repository exists
@@ -125,7 +129,7 @@ jobs:
             "${build_args[@]}" \
             --file "${{ matrix.dockerfile }}" \
             --tag "${IMAGE_NAME}" \
-            "${{ matrix.module }}"
+            "${{ matrix.context }}"
           docker push "${IMAGE_NAME}"
 
           if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
