@@ -38,20 +38,10 @@ public class KubernetesChaosService {
         }
 
         log.info("Deleting up to {} pods in namespace '{}' matching selector '{}'", maxPods, effectiveNamespace, labelSelector);
-        V1PodList pods = coreV1Api.listNamespacedPod(
-            effectiveNamespace,
-            null,
-            null,
-            null,
-            null,
-            labelSelector,
-            null,
-            null,
-            null,
-            null,
-            null,
-            false
-        );
+        V1PodList pods = coreV1Api
+            .listNamespacedPod(effectiveNamespace)
+            .labelSelector(labelSelector)
+            .execute();
 
         List<PodKillResult.PodRef> terminated = new ArrayList<>();
         int count = 0;
@@ -63,7 +53,10 @@ public class KubernetesChaosService {
                 continue;
             }
             String podName = pod.getMetadata().getName();
-            coreV1Api.deleteNamespacedPod(podName, effectiveNamespace, null, null, null, null, null, new V1DeleteOptions());
+            coreV1Api
+                .deleteNamespacedPod(podName, effectiveNamespace)
+                .body(new V1DeleteOptions())
+                .execute();
             terminated.add(new PodKillResult.PodRef(podName, pod.getMetadata().getNamespace(), Instant.now()));
             count++;
             log.info("Requested deletion for pod {}/{}", effectiveNamespace, podName);

@@ -2,7 +2,6 @@ package com.chaoslab.dashboard.chaos.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.kubernetes.client.openapi.ApiClient;
-import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.util.ClientBuilder;
 import io.kubernetes.client.util.KubeConfig;
@@ -43,7 +42,7 @@ public class KubernetesClientConfig {
             client = ClientBuilder.standard().build();
         }
         client.setUserAgent("chaos-injector/0.0.1");
-        Configuration.setDefaultApiClient(client);
+        io.kubernetes.client.openapi.Configuration.setDefaultApiClient(client);
         return client;
     }
 
