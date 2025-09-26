@@ -5,13 +5,12 @@
 ## Repository Layout (WIP)
 - `infra/`: Terraform modules split into always-on and toggleable stacks.
 - `target-app/`: Target frontend and microservices deployed onto EKS.
-- `lab-dashboard/`: Lightsail-hosted control plane (Terraform runner, chaos injector, log streamer, UI).
-- `lab-dashboard/deploy/lightsail`: docker-compose + Nginx assets for the Lightsail host.
+- `lab-dashboard/`: Dashboard control plane (Terraform runner, chaos injector, log streamer, UI) deployed on EC2.
+- `lab-dashboard/deploy/dashboard`: docker-compose + Nginx assets for the dashboard host.
 - `.github/workflows/`: GitHub Actions for CI/CD (build, deploy backend, deploy frontend).
 - `ci-cd/`: Shared pipeline templates and documentation.
 - `docs/`: Architecture, runbooks, costs, presentation artifacts.
-- `infra/modules/lightsail`: Terraform module for the Lightsail dashboard host (Docker + Terraform/Helm runtime).
-
+- `infra/modules/ec2_dashboard`: Terraform module for the dashboard EC2 host (Docker + Terraform/Helm runtime).
 ## Roadmap Sprint (Sep 18 - Sep 30)
 | Date | Theme |
 | --- | --- |
@@ -40,7 +39,9 @@
 - [ ] Documentation set
 
 ## Quick Commands
-- `make static-plan` / `make static-apply`: Lightsail을 포함한 Static 스택을 검토/적용 (`infra/static/vars/base.tfvars` 사용).
+- `make static-plan` / `make static-apply`: 대시보드 EC2를 포함한 Static 스택을 검토/적용 (`infra/static/vars/base.tfvars` 사용). user data가 최초 기동 시 `docker compose pull/up`을 수행합니다.
+- `make static-destroy`: 대시보드 EC2 등 Static 스택 자원 제거.
 - `make onoff-plan` / `make on`: 토글 스택(EKS, Fluent Bit 등)을 검토/기동.
 - `make off`: 토글 스택 자원 제거.
 - 스크립트 기반 워크플로는 `docs/runbook` 디렉터리를 참고하세요.
+- 대시보드 컨테이너 갱신: `scripts/static/update-dashboard-instance.sh` (대시보드 EC2에서 실행)

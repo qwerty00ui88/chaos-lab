@@ -28,7 +28,12 @@ output "security_group_ids" {
   value       = module.vpc.security_group_ids
 }
 
-output "lightsail_dashboard_ip" {
-  description = "Public IP address of the Lightsail dashboard host"
-  value       = var.enable_lightsail ? module.lightsail_dashboard[0].public_ip : null
+output "dashboard_public_ip" {
+  description = "Public IP address of the dashboard EC2 host"
+  value       = var.enable_dashboard_instance ? module.dashboard_instance[0].public_ip : null
+}
+
+output "dashboard_instance_id" {
+  description = "Instance ID of the dashboard EC2 host"
+  value       = var.enable_dashboard_instance ? module.dashboard_instance[0].instance_id : null
 }

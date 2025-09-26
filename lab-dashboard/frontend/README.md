@@ -28,7 +28,7 @@ npm run build
 npm run preview
 ```
 
-`dist/` 폴더가 생성되며, Nginx 또는 Lightsail 인스턴스에서 그대로 서비스할 수 있습니다.
+`dist/` 폴더가 생성되며, Nginx 또는 대시보드 EC2 인스턴스에서 그대로 서비스할 수 있습니다.
 
 ## 주요 화면
 - **Terraform Controls**: `/api/terraform/apply`, `/destroy`, `/helm/rollout` 엔드포인트를 호출하는 버튼.

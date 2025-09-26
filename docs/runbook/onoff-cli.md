@@ -25,8 +25,8 @@ scripts/helm/undeploy-service.sh svc-user    # 개별 서비스 제거
 
 기본 이미지 태그는 현재 Git 커밋 SHA입니다. 다른 태그를 사용하려면 `IMAGE_TAG=... scripts/onoff/helm-rollout.sh` 형태로 호출하세요.
 
-## 3. Lightsail 연동 시 고려사항
+## 3. 대시보드 EC2 연동 시 고려사항
 
-- Lightsail 인스턴스에 Terraform, AWS CLI v2, kubectl, Helm을 설치합니다.
+- 대시보드 EC2 인스턴스에 Terraform, AWS CLI v2, kubectl, Helm을 설치합니다 (user_data로 자동 설치되도록 구성되어 있음).
 - `AWS_REGION`, `ECR_REGISTRY`, `ECR_REPOSITORY_PREFIX`, `KUBE_NAMESPACE` 등의 환경변수를 서비스 시작 시에 주입합니다.
 - IAM Role 또는 Access Key는 Terraform on/off 리소스와 EKS/Helm 배포에 필요한 최소 권한을 포함해야 합니다.

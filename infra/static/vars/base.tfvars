@@ -2,13 +2,21 @@ region      = "ap-northeast-2"
 aws_profile = "default"
 environment = "dev"
 
-enable_lightsail = true
+enable_dashboard_instance = true
 
-# Lightsail dashboard bootstrap configuration
-lightsail_ecr_registry          = "446447036578.dkr.ecr.ap-northeast-2.amazonaws.com"
-lightsail_ecr_repository_prefix = "chaos-lab"
-lightsail_eks_cluster_name      = "chaos-lab-dev"
-lightsail_dashboard_repo_url    = "https://github.com/sohuiham/chaos-lab.git"
-lightsail_dashboard_repo_branch = "main"
-lightsail_dashboard_clone_path  = "/opt/chaos-dashboard/app"
-lightsail_dashboard_compose_path = "lab-dashboard/deploy/lightsail/docker-compose.yml"
+dashboard_instance_type = "t3.small"
+dashboard_key_pair_name = null
+# dashboard_allowed_cidrs = ["0.0.0.0/0"]
+
+# Dashboard bootstrap configuration
+dashboard_ecr_registry          = "446447036578.dkr.ecr.ap-northeast-2.amazonaws.com"
+dashboard_ecr_repository_prefix = "chaos-lab"
+dashboard_eks_cluster_name      = "chaos-lab-dev"
+dashboard_repo_url              = "https://github.com/qwerty00ui88/chaos-lab.git"
+dashboard_repo_branch           = "dev"
+dashboard_clone_path            = "/opt/chaos-dashboard/app"
+dashboard_compose_path          = "lab-dashboard/deploy/dashboard/docker-compose.yml"
+dashboard_terraform_client_tag  = "latest"
+dashboard_chaos_injector_tag    = "latest"
+dashboard_log_streamer_tag      = "latest"
+dashboard_frontend_tag          = "latest"

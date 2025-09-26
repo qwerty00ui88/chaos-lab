@@ -65,135 +65,103 @@ variable "public_subnets" {
   }
 }
 
-variable "enable_lightsail" {
-  description = "Whether to provision the Lightsail dashboard instance."
+variable "enable_dashboard_instance" {
+  description = "Whether to provision the EC2 dashboard instance."
   type        = bool
   default     = true
 }
 
-variable "lightsail_az" {
-  description = "Lightsail availability zone"
+variable "dashboard_instance_type" {
+  description = "Instance type for the dashboard EC2 host."
   type        = string
-  default     = "ap-northeast-2a"
+  default     = "t3.small"
 }
 
-variable "lightsail_blueprint_id" {
-  description = "Lightsail blueprint ID"
-  type        = string
-  default     = "ubuntu_22_04"
-}
-
-variable "lightsail_bundle_id" {
-  description = "Lightsail bundle ID"
-  type        = string
-  default     = "nano_2_0"
-}
-
-variable "lightsail_key_pair_name" {
-  description = "Existing Lightsail key pair name for SSH (optional)"
+variable "dashboard_key_pair_name" {
+  description = "Existing EC2 key pair name for SSH (optional)."
   type        = string
   default     = null
 }
 
-variable "lightsail_allowed_ports" {
-  description = "Public ports exposed on the Lightsail instance"
-  type = list(object({
-    from     = number
-    to       = number
-    protocol = string
-  }))
-  default = [
-    {
-      from     = 80
-      to       = 80
-      protocol = "tcp"
-    },
-    {
-      from     = 443
-      to       = 443
-      protocol = "tcp"
-    },
-    {
-      from     = 22
-      to       = 22
-      protocol = "tcp"
-    }
-  ]
+variable "dashboard_allowed_cidrs" {
+  description = "CIDR blocks allowed to access the dashboard host."
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
 }
 
-variable "lightsail_terraform_version" {
-  description = "Terraform CLI version installed on Lightsail"
+variable "dashboard_terraform_version" {
+  description = "Terraform CLI version installed on the dashboard host"
   type        = string
   default     = "1.7.5"
 }
 
-variable "lightsail_kubectl_version" {
+variable "dashboard_kubectl_version" {
   description = "kubectl version (e.g., v1.30.0)"
   type        = string
   default     = "v1.30.0"
 }
 
-variable "lightsail_ecr_registry" {
+variable "dashboard_ecr_registry" {
   description = "Default ECR registry URL for dashboard containers"
   type        = string
   default     = ""
 }
 
-variable "lightsail_ecr_repository_prefix" {
+variable "dashboard_ecr_repository_prefix" {
   description = "ECR repository prefix for dashboard images"
   type        = string
   default     = "chaos-lab"
 }
 
-variable "lightsail_eks_cluster_name" {
+variable "dashboard_eks_cluster_name" {
   description = "EKS cluster name used by dashboard"
   type        = string
   default     = "chaos-lab-dev"
 }
 
-variable "lightsail_dashboard_repo_url" {
+variable "dashboard_repo_url" {
   description = "Git repository URL containing dashboard deployment assets"
   type        = string
   default     = ""
 }
 
-variable "lightsail_dashboard_repo_branch" {
-  description = "Git branch checked out on the Lightsail host"
+variable "dashboard_repo_branch" {
+  description = "Git branch checked out on the dashboard host"
   type        = string
   default     = "main"
 }
 
-variable "lightsail_dashboard_clone_path" {
+variable "dashboard_clone_path" {
   description = "Absolute path where the dashboard repository should be cloned"
   type        = string
   default     = "/opt/chaos-dashboard/app"
 }
 
-variable "lightsail_dashboard_compose_path" {
+variable "dashboard_compose_path" {
   description = "Path to the docker-compose file (relative to clone path unless absolute)"
   type        = string
-  default     = "deploy/lightsail/docker-compose.yml"
+  default     = "deploy/dashboard/docker-compose.yml"
 }
 
-variable "lightsail_terraform_client_tag" {
+variable "dashboard_terraform_client_tag" {
   description = "Container image tag for the terraform-client service"
   type        = string
   default     = "latest"
 }
 
-variable "lightsail_chaos_injector_tag" {
+variable "dashboard_chaos_injector_tag" {
   description = "Container image tag for the chaos-injector service"
   type        = string
   default     = "latest"
 }
 
-variable "lightsail_log_streamer_tag" {
+variable "dashboard_log_streamer_tag" {
   description = "Container image tag for the log-streamer service"
   type        = string
   default     = "latest"
 }
 
-variable "lightsail_frontend_tag" {
+variable "dashboard_frontend_tag" {
   description = "Container image tag for the dashboard frontend service"
   type        = string
   default     = "latest"

@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eu
+set -e
 
 exec >/var/log/chaos-dashboard-bootstrap.log 2>&1
 logger -t user-data "chaos-dashboard bootstrap starting"
@@ -31,10 +31,10 @@ rm kubectl
 echo "[bootstrap] Installing Helm"
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
-mkdir -p /opt/chaos-dashboard/scripts
+install -d -m 0755 /opt/chaos-dashboard && install -d -m 0755 /opt/chaos-dashboard/scripts
 chown -R ubuntu:ubuntu /opt/chaos-dashboard
 
-cat <<'ENV' >/opt/chaos-dashboard/.env
+cat <<ENV >/opt/chaos-dashboard/.env
 AWS_REGION=${aws_region}
 ECR_REGISTRY=${ecr_registry}
 ECR_REPOSITORY_PREFIX=${ecr_repository_prefix}
@@ -46,7 +46,7 @@ LOG_STREAMER_TAG=${log_streamer_tag}
 FRONTEND_TAG=${frontend_tag}
 ENV
 
-cat <<'NOTE' >/opt/chaos-dashboard/README
+cat <<NOTE >/opt/chaos-dashboard/README
 Terraform/Helm bootstrap completed.
 Place dashboard compose files or binaries under /opt/chaos-dashboard.
 Scripts volume is ready for application deployment.
@@ -55,7 +55,7 @@ NOTE
 systemctl enable docker
 systemctl restart docker
 
-cat <<SCRIPT >/tmp/chaos-dashboard-bootstrap.sh
+cat <<'SCRIPT' >/tmp/chaos-dashboard-bootstrap.sh
 #!/bin/sh
 set -eu
 
@@ -63,9 +63,32 @@ REPO_URL="${dashboard_repo_url}"
 REPO_BRANCH="${dashboard_repo_branch}"
 CLONE_PATH="${dashboard_clone_path}"
 COMPOSE_PATH="${dashboard_compose_path}"
+ECR_REGISTRY="${ecr_registry}"
+AWS_REGION="${aws_region}"
+
+login_ecr() {
+  if [ -z "$${ECR_REGISTRY:-}" ]; then
+    echo "[bootstrap] ECR registry not provided; skip docker login"
+    return 0
+  fi
+
+  echo "[bootstrap] Logging into ECR $${ECR_REGISTRY:-unknown} in $${AWS_REGION:-unknown}"
+  for _attempt in 1 2 3; do
+    if aws ecr get-login-password --region "$${AWS_REGION:-ap-northeast-2}" \
+      | docker login --username AWS --password-stdin "$${ECR_REGISTRY}"; then
+      return 0
+    fi
+    echo "[bootstrap] ECR login failed (attempt $_attempt); retrying in 5s" >&2
+    sleep 5
+  done
+  echo "[bootstrap] ECR login failed after retries" >&2
+  return 1
+}
 
 CLONE_PARENT="$(dirname "$CLONE_PATH")"
-mkdir -p "$CLONE_PARENT"
+if [ -n "$CLONE_PARENT" ]; then
+  install -d -m 0755 "$CLONE_PARENT"
+fi
 
 if [ -d "$${CLONE_PATH}/.git" ]; then
   echo "[bootstrap] Updating existing dashboard repository"
@@ -74,7 +97,11 @@ if [ -d "$${CLONE_PATH}/.git" ]; then
   git checkout "$${REPO_BRANCH}"
   git reset --hard "origin/$${REPO_BRANCH}"
 else
-  echo "[bootstrap] Cloning dashboard repository"
+  if [ -z "$${REPO_URL:-}" ]; then
+    echo "[bootstrap] REPO_URL is empty; skipping clone" >&2
+    exit 1
+  fi
+  echo "[bootstrap] Cloning dashboard repository from $${REPO_URL}"
   rm -rf "$${CLONE_PATH}"
   git clone --branch "$${REPO_BRANCH}" "$${REPO_URL}" "$${CLONE_PATH}"
 fi
@@ -111,6 +138,7 @@ if [ -f "$COMPOSE_SRC" ]; then
     chown ubuntu:ubuntu /opt/chaos-dashboard/nginx.conf
   fi
   cd /opt/chaos-dashboard
+  login_ecr || true
   docker compose pull || true
   if ! docker compose up -d; then
     echo "[bootstrap] docker compose up failed (missing images?) - continuing" >&2

@@ -33,7 +33,7 @@ terraform -chdir=infra/static plan
 terraform -chdir=infra/onoff plan
 ```
 
-두 명령 모두 `No changes`가 나오는지 확인하세요. 이후에는 다른 환경(예: Lightsail)에서도 같은 백엔드를 사용하게 됩니다.
+두 명령 모두 `No changes`가 나오는지 확인하세요. 이후에는 다른 환경(예: 대시보드 EC2)에서도 같은 백엔드를 사용하게 됩니다.
 
 ## 4. 로컬 상태 파일 정리 (선택)
 
