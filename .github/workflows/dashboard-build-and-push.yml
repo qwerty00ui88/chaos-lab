@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - dev
   workflow_dispatch:
 
 env:
@@ -104,6 +103,7 @@ jobs:
         env:
           REGISTRY: ${{ steps.aws.outputs.registry || secrets.ECR_REGISTRY || vars.ECR_REGISTRY }}
           IMAGE_TAG: ${{ github.sha }}
+          PUSH_LATEST: ${{ github.ref == 'refs/heads/main' && 'true' || 'false' }}
           BUILD_ARGS: ${{ matrix.build_args || '' }}
         run: |
           if [[ -z "${REGISTRY}" ]]; then
@@ -130,8 +130,12 @@ jobs:
             "${build_args[@]}" \
             --file "${{ matrix.dockerfile }}" \
             --tag "${IMAGE_NAME}" \
+            --tag "${REGISTRY}/${REPO_NAME}:latest" \
             "${{ matrix.context }}"
           docker push "${IMAGE_NAME}"
+          if [[ "${PUSH_LATEST}" == "true" ]]; then
+            docker push "${REGISTRY}/${REPO_NAME}:latest"
+          fi
 
       - name: Summarise image
         env:
