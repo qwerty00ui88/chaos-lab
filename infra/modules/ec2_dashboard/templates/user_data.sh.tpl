@@ -23,6 +23,12 @@ unzip -q /tmp/awscliv2.zip -d /tmp
 /tmp/aws/install
 rm -rf /tmp/aws /tmp/awscliv2.zip
 
+# Ensure /usr/local/bin is available to login and SSM shells
+cat <<'PROFILE' >/etc/profile.d/chaos-dashboard-path.sh
+export PATH=/usr/local/bin:$PATH
+PROFILE
+chmod +x /etc/profile.d/chaos-dashboard-path.sh
+
 echo "[bootstrap] Installing kubectl ${kubectl_version}"
 curl -LO "https://dl.k8s.io/release/${kubectl_version}/bin/linux/amd64/kubectl"
 install -m 0755 kubectl /usr/local/bin/kubectl

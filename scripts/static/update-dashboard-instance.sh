@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Ensure CLI tools installed under /usr/local/bin are visible when the script
+# runs under SSM or non-login shells.
+export PATH="/usr/local/bin:/usr/bin:/bin:${PATH}"
+
 usage() {
   cat <<'EOF'
 Usage: update-dashboard-instance.sh [options] [SERVICE...]
