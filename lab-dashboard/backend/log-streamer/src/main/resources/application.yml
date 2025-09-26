@@ -1,0 +1,18 @@
+server:
+  port: 8090
+
+logging:
+  level:
+    root: INFO
+
+logstream:
+  demo:
+    enabled: false
+    interval-seconds: 2
+  cloudwatch:
+    enabled: true
+    region: ap-northeast-2
+    log-group-name: chaos-lab-dev-logs
+    log-stream-prefix: svc-
+    poll-interval-seconds: 5
+    max-events: 100

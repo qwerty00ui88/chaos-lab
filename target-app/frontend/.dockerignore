@@ -1,0 +1,18 @@
+# OS/IDE
+.DS_Store
+.idea
+.vscode
+
+# Git
+.git
+.gitignore
+
+# Logs
+*.log
+
+# Node.js dependencies
+node_modules
+
+# Vite build output
+dist
+

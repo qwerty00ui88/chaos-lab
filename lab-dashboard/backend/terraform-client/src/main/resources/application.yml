@@ -1,0 +1,13 @@
+chaoslab:
+  scripts:
+    base-dir: ${CHAOSLAB_SCRIPTS_BASE:../../../scripts}
+    terraform:
+      apply: onoff/apply.sh
+      destroy: onoff/destroy.sh
+    helm:
+      rollout: onoff/helm-rollout.sh
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger - %msg%n"
+  level:
+    root: INFO
