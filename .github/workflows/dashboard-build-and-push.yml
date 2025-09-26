@@ -195,10 +195,10 @@ jobs:
           fi
 
           COMMANDS=$(printf '%s\n' \
-            "set -euo pipefail" \
+            "set -eu" \
             "su - ubuntu -c 'cd \"/opt/chaos-dashboard/app\" && git fetch --all --prune && git checkout ${BRANCH} && git reset --hard origin/${BRANCH}'" \
-            "if [[ -d \"/opt/chaos-dashboard/app/scripts\" ]]; then rsync -a --delete /opt/chaos-dashboard/app/scripts/ /opt/chaos-dashboard/scripts/ && chown -R ubuntu:ubuntu /opt/chaos-dashboard/scripts; fi" \
-            "if [[ -d \"/opt/chaos-dashboard/app/infra\" ]]; then rsync -a --delete /opt/chaos-dashboard/app/infra/ /opt/chaos-dashboard/infra/ && chown -R ubuntu:ubuntu /opt/chaos-dashboard/infra; fi" \
+            "if [ -d \"/opt/chaos-dashboard/app/scripts\" ]; then rsync -a --delete /opt/chaos-dashboard/app/scripts/ /opt/chaos-dashboard/scripts/ && chown -R ubuntu:ubuntu /opt/chaos-dashboard/scripts; fi" \
+            "if [ -d \"/opt/chaos-dashboard/app/infra\" ]; then rsync -a --delete /opt/chaos-dashboard/app/infra/ /opt/chaos-dashboard/infra/ && chown -R ubuntu:ubuntu /opt/chaos-dashboard/infra; fi" \
             "/opt/chaos-dashboard/scripts/static/update-dashboard-instance.sh --all-tag ${GITHUB_SHA}" \
           | jq -R -s 'split("\n")[:-1]')
 
