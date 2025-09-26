@@ -42,3 +42,31 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "create_instance_profile" {
+  description = "Whether to create an IAM instance profile with ECR/SSM access for the dashboard host."
+  type        = bool
+  default     = true
+}
+
+variable "instance_profile_name" {
+  description = "Existing IAM instance profile name to attach when not creating one."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.create_instance_profile || var.instance_profile_name != null
+    error_message = "instance_profile_name must be provided when create_instance_profile is false."
+  }
+}
+
+variable "iam_managed_policy_arns" {
+  description = "Additional IAM managed policy ARNs to attach when creating the instance profile."
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition     = var.create_instance_profile || length(var.iam_managed_policy_arns) == 0
+    error_message = "iam_managed_policy_arns can only be set when create_instance_profile is true."
+  }
+}

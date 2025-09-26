@@ -40,6 +40,7 @@ ECR_REGISTRY=${ecr_registry}
 ECR_REPOSITORY_PREFIX=${ecr_repository_prefix}
 EKS_CLUSTER_NAME=${eks_cluster_name}
 DASHBOARD_REPO_ROOT=${dashboard_clone_path}
+DASHBOARD_REPO_BRANCH=${dashboard_repo_branch}
 TERRAFORM_CLIENT_TAG=${terraform_client_tag}
 CHAOS_INJECTOR_TAG=${chaos_injector_tag}
 LOG_STREAMER_TAG=${log_streamer_tag}

@@ -63,12 +63,15 @@ module "dashboard_instance" {
 
   source = "../modules/ec2_dashboard"
 
-  name          = "${module.shared.project_name}-${var.environment}-dashboard"
-  subnet_id     = module.vpc.public_subnet_ids[0]
-  vpc_id        = module.vpc.vpc_id
-  instance_type = var.dashboard_instance_type
-  key_name      = var.dashboard_key_pair_name
-  allowed_cidrs = var.dashboard_allowed_cidrs
-  user_data     = local.dashboard_user_data
-  tags          = module.shared.default_tags
+  name                    = "${module.shared.project_name}-${var.environment}-dashboard"
+  subnet_id               = module.vpc.public_subnet_ids[0]
+  vpc_id                  = module.vpc.vpc_id
+  instance_type           = var.dashboard_instance_type
+  key_name                = var.dashboard_key_pair_name
+  allowed_cidrs           = var.dashboard_allowed_cidrs
+  user_data               = local.dashboard_user_data
+  create_instance_profile = var.dashboard_create_instance_profile
+  instance_profile_name   = var.dashboard_instance_profile_name
+  iam_managed_policy_arns = var.dashboard_iam_managed_policy_arns
+  tags                    = module.shared.default_tags
 }

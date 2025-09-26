@@ -166,3 +166,21 @@ variable "dashboard_frontend_tag" {
   type        = string
   default     = "latest"
 }
+
+variable "dashboard_create_instance_profile" {
+  description = "Whether to create an IAM instance profile for the dashboard EC2 host"
+  type        = bool
+  default     = true
+}
+
+variable "dashboard_instance_profile_name" {
+  description = "Existing IAM instance profile name to use when not creating a new one"
+  type        = string
+  default     = null
+}
+
+variable "dashboard_iam_managed_policy_arns" {
+  description = "Additional IAM managed policy ARNs to attach to the dashboard instance role"
+  type        = list(string)
+  default     = []
+}
