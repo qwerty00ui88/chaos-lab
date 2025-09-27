@@ -562,9 +562,13 @@ export default function App() {
                     <div className="detail-logs">
                       <h3>Recent output</h3>
                       <div className="log-scroll">
-                        {selectedLogs.map((line, index) => (
-                          <code key={`${line}-${index}`}>{line}</code>
-                        ))}
+                        {selectedLogs.map((entry, index) => {
+                          const displayValue =
+                            typeof entry === 'string'
+                              ? entry
+                              : entry?.line ?? entry?.message ?? JSON.stringify(entry);
+                          return <code key={`${displayValue}-${index}`}>{displayValue}</code>;
+                        })}
                       </div>
                     </div>
                   )}

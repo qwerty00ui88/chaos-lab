@@ -25,11 +25,6 @@ variable "enable_nodegroup" {
   description = "Whether to create the EKS managed node group."
   type        = bool
   default     = false
-
-  validation {
-    condition     = !(var.enable_nodegroup && !var.enable_eks)
-    error_message = "enable_nodegroup=true requires enable_eks=true."
-  }
 }
 
 variable "enable_alb" {
