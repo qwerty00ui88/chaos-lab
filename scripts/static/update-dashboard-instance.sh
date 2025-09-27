@@ -15,6 +15,7 @@ Options:
   --chaos-injector-tag TAG      Override chaos-injector image tag
   --log-streamer-tag TAG        Override log-streamer image tag
   --frontend-tag TAG            Override frontend image tag
+  --gateway-tag TAG             Override gateway image tag
   --no-repo-sync                Skip git pull/rsync before updating containers
   -h, --help                    Show this help message
 
@@ -45,6 +46,7 @@ TERRAFORM_TAG=""
 CHAOS_TAG=""
 LOG_TAG=""
 FRONTEND_TAG=""
+GATEWAY_TAG=""
 SYNC_REPO=true
 
 while [[ $# -gt 0 ]]; do
@@ -72,6 +74,11 @@ while [[ $# -gt 0 ]]; do
     --frontend-tag)
       [[ $# -lt 2 ]] && { echo "[ERROR] --frontend-tag requires a value" >&2; exit 1; }
       FRONTEND_TAG="$2"
+      shift 2
+      ;;
+    --gateway-tag)
+      [[ $# -lt 2 ]] && { echo "[ERROR] --gateway-tag requires a value" >&2; exit 1; }
+      GATEWAY_TAG="$2"
       shift 2
       ;;
     --no-repo-sync)
@@ -102,6 +109,7 @@ if [[ -n "${ALL_TAG}" ]]; then
   CHAOS_TAG="${CHAOS_TAG:-${ALL_TAG}}"
   LOG_TAG="${LOG_TAG:-${ALL_TAG}}"
   FRONTEND_TAG="${FRONTEND_TAG:-${ALL_TAG}}"
+  GATEWAY_TAG="${GATEWAY_TAG:-${ALL_TAG}}"
 fi
 
 DASHBOARD_ROOT=${DASHBOARD_ROOT:-/opt/chaos-dashboard}
@@ -171,6 +179,7 @@ apply_tag "TERRAFORM_CLIENT_TAG" "${TERRAFORM_TAG}"
 apply_tag "CHAOS_INJECTOR_TAG" "${CHAOS_TAG}"
 apply_tag "LOG_STREAMER_TAG" "${LOG_TAG}"
 apply_tag "FRONTEND_TAG" "${FRONTEND_TAG}"
+apply_tag "GATEWAY_TAG" "${GATEWAY_TAG}"
 
 echo "[dashboard] Logging in to ECR ${ECR_REGISTRY} (${AWS_REGION_VALUE})"
 aws ecr get-login-password --region "${AWS_REGION_VALUE}" | docker login --username AWS --password-stdin "${ECR_REGISTRY}"

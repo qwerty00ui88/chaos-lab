@@ -2,6 +2,7 @@ version: "3.9"
 
 services:
   gateway:
+    image: ${ECR_REGISTRY}/${ECR_REPOSITORY_PREFIX}-dashboard-gateway:${GATEWAY_TAG:-latest}
     build:
       context: .
       dockerfile: gateway/Dockerfile
