@@ -7,7 +7,8 @@ ARG VITE_LOG_STREAM_URL=/api/logs/stream
 ARG VITE_LOG_STREAM_POST_URL=/api/logs
 ENV VITE_LOG_STREAM_URL=$VITE_LOG_STREAM_URL \
     VITE_LOG_STREAM_POST_URL=$VITE_LOG_STREAM_POST_URL
-RUN npm run build
+RUN npm run build \
+ && test -f dist/index.html
 
 FROM nginx:1.27-alpine
 COPY --from=build /app/dist /usr/share/nginx/html
