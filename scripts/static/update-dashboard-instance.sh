@@ -163,6 +163,21 @@ if ${SYNC_REPO} && [[ -n "${REPO_ROOT}" && -d "${REPO_ROOT}" ]]; then
     rsync -a --delete "${REPO_ROOT}/infra/" "${DASHBOARD_ROOT}/infra/"
     chown -R ubuntu:ubuntu "${DASHBOARD_ROOT}/infra"
   fi
+
+  DASHBOARD_DEPLOY_DIR="${REPO_ROOT}/lab-dashboard/deploy/dashboard"
+  if [[ -d "${DASHBOARD_DEPLOY_DIR}" ]]; then
+    if [[ -f "${DASHBOARD_DEPLOY_DIR}/docker-compose.yml" ]]; then
+      echo "[dashboard] Updating docker-compose.yml"
+      cp "${DASHBOARD_DEPLOY_DIR}/docker-compose.yml" "${DASHBOARD_ROOT}/docker-compose.yml"
+      chown ubuntu:ubuntu "${DASHBOARD_ROOT}/docker-compose.yml"
+    fi
+
+    if [[ -f "${DASHBOARD_DEPLOY_DIR}/nginx.conf" ]]; then
+      echo "[dashboard] Updating nginx.conf"
+      cp "${DASHBOARD_DEPLOY_DIR}/nginx.conf" "${DASHBOARD_ROOT}/nginx.conf"
+      chown ubuntu:ubuntu "${DASHBOARD_ROOT}/nginx.conf"
+    fi
+  fi
 fi
 
 apply_tag() {
