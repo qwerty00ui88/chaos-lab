@@ -23,7 +23,6 @@ unzip -q /tmp/awscliv2.zip -d /tmp
 /tmp/aws/install
 rm -rf /tmp/aws /tmp/awscliv2.zip
 
-# Ensure /usr/local/bin is available to login and SSM shells
 cat <<'PROFILE' >/etc/profile.d/chaos-dashboard-path.sh
 export PATH=/usr/local/bin:$PATH
 PROFILE
