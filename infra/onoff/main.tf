@@ -9,6 +9,13 @@ terraform {
   }
 }
 
+check "nodegroup_requires_eks" {
+  assert {
+    condition     = !(var.enable_nodegroup && !var.enable_eks)
+    error_message = "enable_nodegroup=true requires enable_eks=true."
+  }
+}
+
 module "shared" {
   source = "../shared"
 
@@ -130,7 +137,7 @@ module "eks" {
 }
 
 module "nodegroup" {
-  count = var.enable_nodegroup ? 1 : 0
+  count = var.enable_nodegroup && var.enable_eks ? 1 : 0
 
   depends_on = [module.eks]
 
