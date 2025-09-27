@@ -173,10 +173,11 @@ jobs:
             echo "::error::Set repository variable DASHBOARD_INSTANCE_NAME to the EC2 Name tag." >&2
             exit 1
           fi
-          INSTANCE_ID=$(aws ec2 describe-instances \
+          INSTANCE_IDS=$(aws ec2 describe-instances \
             --filters "Name=tag:Name,Values=${NAME_TAG}" "Name=instance-state-name,Values=running" \
-            --query "Reservations[0].Instances[0].InstanceId" \
-            --output text)
+            --query "Reservations[].Instances[].InstanceId" \
+            --output text | tr '\r' '\n' | sed '/^$/d')
+          INSTANCE_ID=$(printf '%s\n' "${INSTANCE_IDS}" | head -n1)
           if [[ -z "${INSTANCE_ID}" || "${INSTANCE_ID}" == "None" ]]; then
             echo "::error::Dashboard instance with tag ${NAME_TAG} not found or not running." >&2
             exit 1
