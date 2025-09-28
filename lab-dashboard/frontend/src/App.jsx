@@ -181,7 +181,7 @@ export default function App() {
   );
 
   const environmentName = import.meta.env.VITE_ENVIRONMENT || import.meta.env.VITE_CHAOS_ENV || 'dev';
-  const targetAppUrl = import.meta.env.VITE_TARGET_URL || 'https://target.chaos-lab.org';
+  const targetAppUrl = import.meta.env.VITE_TARGET_URL;
   const targetAppHost = useMemo(() => targetAppUrl.replace(/^https?:\/\//, ''), [targetAppUrl]);
 
   const handleToggleStack = useCallback(
@@ -241,7 +241,7 @@ export default function App() {
   const [liveLogs, setLiveLogs] = useState([]);
   const eventSourceRef = useRef(null);
 
-  const logStreamUrl = import.meta.env.VITE_LOG_STREAM_URL || 'http://localhost:8090/api/logs/stream';
+  const logStreamUrl = import.meta.env.VITE_LOG_STREAM_URL;
 
   useEffect(() => {
     const controller = new AbortController();

@@ -61,7 +61,7 @@ public class ScriptProperties {
         if (candidate.isAbsolute()) {
             return candidate;
         }
-        return normalizeBase(baseDir).resolve(candidate).normalize();
+        return candidate.toAbsolutePath().normalize();
     }
 
     public void setTerraformWorkingDir(Path terraformWorkingDir) {

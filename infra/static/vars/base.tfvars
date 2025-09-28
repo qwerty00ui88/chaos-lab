@@ -1,6 +1,5 @@
 region      = "ap-northeast-2"
 aws_profile = "default"
-environment = "dev"
 
 enable_dashboard_instance = true
 
@@ -11,9 +10,7 @@ dashboard_key_pair_name = null
 # Dashboard bootstrap configuration
 dashboard_ecr_registry          = "446447036578.dkr.ecr.ap-northeast-2.amazonaws.com"
 dashboard_ecr_repository_prefix = "chaos-lab"
-dashboard_eks_cluster_name      = "chaos-lab-dev"
 dashboard_repo_url              = "https://github.com/qwerty00ui88/chaos-lab.git"
-dashboard_repo_branch           = "dev"
 dashboard_clone_path            = "/opt/chaos-dashboard/app"
 dashboard_compose_path          = "lab-dashboard/deploy/dashboard/docker-compose.yml"
 dashboard_terraform_client_tag  = "latest"

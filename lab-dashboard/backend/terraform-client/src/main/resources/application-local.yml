@@ -1,5 +1,0 @@
-chaoslab:
-  scripts:
-    base-dir: /Users/sohuiham/workspace/chaos-lab/scripts
-    terraform:
-      working-dir: ${TERRAFORM_WORKING_DIR:../../infra/onoff}

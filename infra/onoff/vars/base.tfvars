@@ -13,5 +13,3 @@ cloudwatch_log_stream_names      = [
 cloudwatch_log_stream_prefix     = "svc-"
 fluent_bit_namespace             = "aws-for-fluent-bit"
 fluent_bit_service_account_name  = "aws-for-fluent-bit"
-
-
