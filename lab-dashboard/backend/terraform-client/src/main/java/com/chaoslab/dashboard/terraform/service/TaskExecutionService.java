@@ -71,7 +71,9 @@ public class TaskExecutionService {
         }
 
         task.markRunning();
-        task.appendLog("system", "Executing: " + String.join(" ", command));
+        String startMessage = "Executing: " + String.join(" ", command);
+        log.info("[task:{}] {}", task.getId(), startMessage);
+        task.appendLog("system", startMessage);
 
         try {
             Process process = builder.start();
@@ -83,15 +85,19 @@ public class TaskExecutionService {
             stderr.join();
 
             if (exitCode == 0) {
+                log.info("[task:{}] completed successfully (exit={})", task.getId(), exitCode);
                 task.markSuccess(exitCode);
             } else {
+                log.warn("[task:{}] failed with exit code {}", task.getId(), exitCode);
                 task.markFailure(exitCode, "Process exited with code " + exitCode);
             }
         } catch (IOException e) {
+            log.error("[task:{}] execution failed", task.getId(), e);
             task.appendLog("system", "Execution failed: " + e.getMessage());
             task.markFailure(-1, e.getMessage());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            log.warn("[task:{}] execution interrupted", task.getId(), e);
             task.appendLog("system", "Execution interrupted: " + e.getMessage());
             task.markFailure(-1, e.getMessage());
         }
@@ -103,8 +109,14 @@ public class TaskExecutionService {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     task.appendLog(streamName, line);
+                    if ("stderr".equals(streamName)) {
+                        log.warn("[task:{}:{}] {}", task.getId(), streamName, line);
+                    } else {
+                        log.info("[task:{}:{}] {}", task.getId(), streamName, line);
+                    }
                 }
             } catch (IOException e) {
+                log.error("[task:{}] failed to read {} stream", task.getId(), streamName, e);
                 task.appendLog("system", "Failed to read " + streamName + ": " + e.getMessage());
             }
         }, executor);

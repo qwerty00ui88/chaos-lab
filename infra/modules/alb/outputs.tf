@@ -15,5 +15,5 @@ output "target_group_arn" {
 
 output "listener_arn" {
   description = "ARN of the active listener."
-  value       = var.certificate_arn != "" ? aws_lb_listener.https[0].arn : aws_lb_listener.http[0].arn
+  value       = try(aws_lb_listener.https[0].arn, try(aws_lb_listener.http[0].arn, null))
 }

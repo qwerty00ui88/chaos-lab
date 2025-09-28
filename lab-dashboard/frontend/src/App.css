@@ -41,7 +41,8 @@ textarea {
 }
 
 .sidebar__brand {
-  display: flex;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
   align-items: center;
   gap: 18px;
 }
@@ -50,6 +51,10 @@ textarea {
   width: 56px;
   height: 56px;
   border-radius: 18px;
+  flex: 0 0 56px;
+  min-width: 56px;
+  min-height: 56px;
+  aspect-ratio: 1 / 1;
   background: linear-gradient(140deg, #303347, #51c4b6);
   color: #f6f8fb;
   display: grid;
@@ -59,17 +64,25 @@ textarea {
   box-shadow: 0 24px 46px -26px rgba(48, 90, 116, 0.42);
 }
 
-.sidebar__brand h1 {
+.sidebar__brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar__brand-text h1 {
   margin: 6px 0 0;
   font-size: 26px;
   color: #171823;
+  white-space: nowrap;
 }
 
-.sidebar__brand p {
-  margin: 8px 0 0;
+.sidebar__brand-text p {
+  margin: 0;
   color: rgba(32, 34, 47, 0.68);
   line-height: 1.6;
   font-size: 13px;
+  max-width: 240px;
 }
 
 .eyebrow {
@@ -132,7 +145,7 @@ textarea {
 .status-pill {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
   padding: 6px 18px;
   border-radius: 999px;
   font-size: 13px;
@@ -143,6 +156,12 @@ textarea {
   color: #333647;
 }
 
+.status-note {
+  font-size: 12px;
+  color: rgba(71, 85, 105, 0.82);
+  letter-spacing: 0.02em;
+}
+
 .status-pill.online {
   background: rgba(204, 244, 236, 0.78);
   color: #176359;
@@ -151,6 +170,16 @@ textarea {
 .status-pill.offline {
   background: rgba(228, 215, 239, 0.74);
   color: #4f3d64;
+}
+
+.status-pill.pending-on {
+  background: rgba(180, 226, 225, 0.6);
+  color: #134c45;
+}
+
+.status-pill.pending-off {
+  background: rgba(228, 215, 239, 0.6);
+  color: #3d3151;
 }
 
 .sidebar .status-pill.online {
