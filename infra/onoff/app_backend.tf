@@ -19,7 +19,7 @@ resource "helm_release" "svc_user" {
   set = [
     {
       name  = "image.repository"
-      value = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.region}.amazonaws.com/svc-user"
+      value = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.region}.amazonaws.com/${var.ecr_repository_prefix}-svc-user"
     },
     {
       name  = "image.tag"
@@ -39,7 +39,7 @@ resource "helm_release" "svc_order" {
   set = [
     {
       name  = "image.repository"
-      value = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.region}.amazonaws.com/svc-order"
+      value = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.region}.amazonaws.com/${var.ecr_repository_prefix}-svc-order"
     },
     {
       name  = "image.tag"
@@ -59,7 +59,7 @@ resource "helm_release" "svc_catalog" {
   set = [
     {
       name  = "image.repository"
-      value = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.region}.amazonaws.com/svc-catalog"
+      value = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.region}.amazonaws.com/${var.ecr_repository_prefix}-svc-catalog"
     },
     {
       name  = "image.tag"

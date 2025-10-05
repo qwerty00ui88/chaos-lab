@@ -153,6 +153,12 @@ variable "target_app_image_tag" {
   default     = "latest"
 }
 
+variable "ecr_repository_prefix" {
+  description = "Prefix applied to ECR repositories for target app services (e.g., chaos-lab)."
+  type        = string
+  default     = "chaos-lab"
+}
+
 variable "alb_listener_port" {
   description = "Listener port for the ALB."
   type        = number
