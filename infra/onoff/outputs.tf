@@ -25,7 +25,9 @@ output "nodegroup_name" {
 
 output "alb_dns_name" {
   description = "DNS name of the Application Load Balancer (if enabled)."
-  value       = var.enable_alb ? module.alb[0].alb_dns_name : null
+  value = var.enable_eks && var.enable_aws_load_balancer_controller ? kubernetes_ingress_v1.target_app[0].status[0].load_balancer[0].ingress[0].hostname : (
+    var.enable_alb ? module.alb[0].alb_dns_name : null
+  )
 }
 
 output "alb_target_group_arn" {

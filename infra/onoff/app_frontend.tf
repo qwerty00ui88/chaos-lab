@@ -75,6 +75,10 @@ resource "aws_cloudfront_cache_policy" "api_cache_disabled" {
 }
 
 # CloudFront 배포
+locals {
+  target_app_api_origin_domain = var.enable_eks && var.enable_aws_load_balancer_controller ? kubernetes_ingress_v1.target_app[0].status[0].load_balancer[0].ingress[0].hostname : (var.enable_alb ? module.alb[0].alb_dns_name : "")
+}
+
 resource "aws_cloudfront_distribution" "target_app_frontend" {
   count = var.enable_eks ? 1 : 0
 
@@ -88,7 +92,7 @@ resource "aws_cloudfront_distribution" "target_app_frontend" {
   # ALB API 백엔드 오리진
   origin {
     origin_id   = "ALB-${module.shared.project_name}-${var.environment}"
-    domain_name = module.alb[0].alb_dns_name
+    domain_name = local.target_app_api_origin_domain
 
     custom_origin_config {
       http_port              = 80
@@ -139,6 +143,10 @@ resource "aws_cloudfront_distribution" "target_app_frontend" {
   viewer_certificate {
     cloudfront_default_certificate = true
   }
+
+  depends_on = [
+    kubernetes_ingress_v1.target_app
+  ]
 }
 
 

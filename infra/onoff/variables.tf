@@ -63,6 +63,12 @@ variable "enable_fluent_bit" {
   default     = false
 }
 
+variable "enable_aws_load_balancer_controller" {
+  description = "Deploy AWS Load Balancer Controller when EKS is enabled."
+  type        = bool
+  default     = true
+}
+
 variable "cloudwatch_log_group_name" {
   description = "Optional name for the CloudWatch log group. Defaults to <project>-<env>-logs."
   type        = string
