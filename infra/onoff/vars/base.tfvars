@@ -18,3 +18,4 @@ fluent_bit_service_account_name  = "aws-for-fluent-bit"
 node_min_size     = 1
 node_max_size     = 3
 node_desired_size = 2
+ecr_repository_prefix = "chaos-lab"
