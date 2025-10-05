@@ -1,3 +1,14 @@
+resource "aws_iam_policy" "aws_lb_controller" {
+  count = var.enable_eks && var.enable_aws_load_balancer_controller ? 1 : 0
+
+  name        = "${module.shared.project_name}-${var.environment}-aws-lbc"
+  description = "Permissions required by AWS Load Balancer Controller"
+
+  policy = templatefile("${path.module}/templates/aws_lb_controller_policy.json.tpl", {
+    cluster_name = module.eks[0].name
+  })
+}
+
 resource "aws_iam_role" "aws_lb_controller" {
   count = var.enable_eks && var.enable_aws_load_balancer_controller ? 1 : 0
 
@@ -31,7 +42,7 @@ resource "aws_iam_role_policy_attachment" "aws_lb_controller" {
   count = var.enable_eks && var.enable_aws_load_balancer_controller ? 1 : 0
 
   role       = aws_iam_role.aws_lb_controller[0].name
-  policy_arn = "arn:aws:iam::aws:policy/AWSLoadBalancerControllerIAMPolicy"
+  policy_arn = aws_iam_policy.aws_lb_controller[0].arn
 }
 
 resource "kubernetes_service_account" "aws_lb_controller" {
@@ -65,28 +76,34 @@ resource "helm_release" "aws_lb_controller" {
     aws_iam_role_policy_attachment.aws_lb_controller
   ]
 
-  set {
-    name  = "clusterName"
-    value = module.eks[0].name
-  }
-
-  set {
-    name  = "region"
-    value = var.region
-  }
-
-  set {
-    name  = "vpcId"
-    value = local.vpc_id
-  }
-
-  set {
-    name  = "serviceAccount.create"
-    value = "false"
-  }
-
-  set {
-    name  = "serviceAccount.name"
-    value = "aws-load-balancer-controller"
-  }
+  set = [
+    {
+      name  = "clusterName"
+      value = module.eks[0].name
+    },
+    {
+      name  = "region"
+      value = var.region
+    },
+    {
+      name  = "vpcId"
+      value = local.vpc_id
+    },
+    {
+      name  = "serviceAccount.create"
+      value = "false"
+    },
+    {
+      name  = "serviceAccount.name"
+      value = "aws-load-balancer-controller"
+    },
+    {
+      name  = "image.repository"
+      value = "602401143452.dkr.ecr.${var.region}.amazonaws.com/amazon/aws-load-balancer-controller"
+    },
+    {
+      name  = "image.tag"
+      value = "v2.8.1"
+    }
+  ]
 }
