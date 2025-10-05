@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 data "aws_ami" "ubuntu_jammy" {
   owners      = ["099720109477"]
   most_recent = true
@@ -76,6 +78,36 @@ resource "aws_iam_role" "dashboard" {
   tags = merge(var.tags, {
     Name = "${var.name}-instance-role"
   })
+}
+
+resource "aws_iam_policy" "dashboard_logs" {
+  count = var.create_instance_profile ? 1 : 0
+
+  name        = "${var.name}-logs-policy"
+  description = "Policy for dashboard to access CloudWatch Logs"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "logs:DescribeLogGroups",
+          "logs:DescribeLogStreams",
+          "logs:FilterLogEvents",
+          "logs:GetLogEvents"
+        ],
+        Resource = "arn:aws:logs:*:*:log-group:*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "dashboard_logs" {
+  count = var.create_instance_profile ? 1 : 0
+
+  role       = aws_iam_role.dashboard[0].name
+  policy_arn = aws_iam_policy.dashboard_logs[0].arn
 }
 
 resource "aws_iam_role_policy_attachment" "dashboard_ecr" {

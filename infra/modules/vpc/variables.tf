@@ -30,3 +30,15 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "create_interface_endpoints" {
+  description = "Whether to create interface VPC endpoints for core AWS services."
+  type        = bool
+  default     = true
+}
+
+variable "create_s3_gateway_endpoint" {
+  description = "Whether to create a gateway VPC endpoint for S3."
+  type        = bool
+  default     = false
+}

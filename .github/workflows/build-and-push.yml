@@ -96,6 +96,7 @@ jobs:
         env:
           REGISTRY: ${{ steps.aws.outputs.registry || secrets.ECR_REGISTRY || vars.ECR_REGISTRY }}
           IMAGE_TAG: ${{ github.sha }}
+          PUSH_LATEST: ${{ github.ref == 'refs/heads/main' && 'true' || 'false' }}
         run: |
           if [[ -z "${REGISTRY}" ]]; then
             echo "::error::ECR registry not provided. Set repository variable ECR_REGISTRY or secret." >&2
@@ -106,12 +107,20 @@ jobs:
             exit 1
           fi
 
-          IMAGE_NAME="${REGISTRY}/${ECR_REPOSITORY_PREFIX}-${{ matrix.id }}:${IMAGE_TAG}"
+          REPO_NAME="${ECR_REPOSITORY_PREFIX}-${{ matrix.id }}"
+          IMAGE_SHA_TAG="${REGISTRY}/${REPO_NAME}:${IMAGE_TAG}"
+          IMAGE_LATEST_TAG="${REGISTRY}/${REPO_NAME}:latest"
+
           docker build \
             --file "${{ matrix.dockerfile }}" \
-            --tag "${IMAGE_NAME}" \
+            --tag "${IMAGE_SHA_TAG}" \
+            --tag "${IMAGE_LATEST_TAG}" \
             "${{ matrix.workdir }}"
-          docker push "${IMAGE_NAME}"
+
+          docker push "${IMAGE_SHA_TAG}"
+          if [[ "${PUSH_LATEST}" == "true" ]]; then
+            docker push "${IMAGE_LATEST_TAG}"
+          fi
 
       - name: Summarise image
         run: |

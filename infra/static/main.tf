@@ -51,11 +51,13 @@ provider "aws" {
 module "vpc" {
   source = "../modules/vpc"
 
-  name            = "${module.shared.project_name}-${var.environment}"
-  cidr_block      = var.vpc_cidr
-  private_subnets = var.private_subnets
-  public_subnets  = var.public_subnets
-  tags            = module.shared.default_tags
+  name                       = "${module.shared.project_name}-${var.environment}"
+  cidr_block                 = var.vpc_cidr
+  private_subnets            = var.private_subnets
+  public_subnets             = var.public_subnets
+  tags                       = module.shared.default_tags
+  create_interface_endpoints = false
+  create_s3_gateway_endpoint = false
 }
 
 module "dashboard_instance" {

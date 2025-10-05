@@ -13,3 +13,8 @@ cloudwatch_log_stream_names      = [
 cloudwatch_log_stream_prefix     = "svc-"
 fluent_bit_namespace             = "aws-for-fluent-bit"
 fluent_bit_service_account_name  = "aws-for-fluent-bit"
+
+# EKS NodeGroup 설정
+node_min_size     = 1
+node_max_size     = 3
+node_desired_size = 2

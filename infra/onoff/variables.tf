@@ -45,6 +45,12 @@ variable "enable_ecr_vpce" {
   default     = false
 }
 
+variable "enable_s3_gateway_endpoint" {
+  description = "Whether to create an S3 gateway VPC endpoint for private subnets."
+  type        = bool
+  default     = false
+}
+
 variable "enable_cloudwatch_logs" {
   description = "Whether to create a CloudWatch log group for target application logs."
   type        = bool
@@ -139,6 +145,12 @@ variable "node_ami_type" {
   description = "AMI type for the node group."
   type        = string
   default     = "AL2_x86_64"
+}
+
+variable "target_app_image_tag" {
+  description = "Docker image tag for the target application services."
+  type        = string
+  default     = "latest"
 }
 
 variable "alb_listener_port" {
