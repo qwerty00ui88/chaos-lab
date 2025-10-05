@@ -40,8 +40,9 @@ resource "aws_eks_cluster" "this" {
   role_arn = aws_iam_role.cluster.arn
 
   vpc_config {
-    subnet_ids         = var.subnet_ids
-    security_group_ids = var.security_group_ids
+    subnet_ids                = var.subnet_ids
+    security_group_ids        = var.security_group_ids
+    endpoint_private_access = true
   }
 
   enabled_cluster_log_types = ["api", "audit", "authenticator"]

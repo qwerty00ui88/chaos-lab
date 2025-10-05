@@ -12,11 +12,6 @@ echo "[bootstrap] Installing Docker"
 curl -fsSL https://get.docker.com | sh
 usermod -aG docker ubuntu || true
 
-echo "[bootstrap] Installing Terraform ${terraform_version}"
-curl -L "https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip" -o /tmp/terraform.zip
-unzip -o /tmp/terraform.zip -d /usr/local/bin
-rm /tmp/terraform.zip
-
 echo "[bootstrap] Installing AWS CLI v2"
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
 unzip -q /tmp/awscliv2.zip -d /tmp

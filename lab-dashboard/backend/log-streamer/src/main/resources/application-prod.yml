@@ -1,0 +1,3 @@
+logstream:
+  cloudwatch:
+    log-group-name: chaos-lab-prod-logs

@@ -27,3 +27,8 @@ output "cluster_role_arn" {
   description = "IAM role ARN for the EKS control plane."
   value       = aws_iam_role.cluster.arn
 }
+
+output "cluster_security_group_id" {
+  description = "Security group ID associated with the EKS control plane."
+  value       = aws_eks_cluster.this.vpc_config[0].cluster_security_group_id
+}

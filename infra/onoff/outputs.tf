@@ -8,6 +8,11 @@ output "eks_cluster_endpoint" {
   value       = var.enable_eks ? module.eks[0].endpoint : null
 }
 
+output "eks_cluster_region" {
+  description = "AWS region where the EKS cluster is deployed."
+  value       = var.enable_eks ? var.region : null
+}
+
 output "eks_oidc_issuer" {
   description = "OIDC issuer URL for the EKS cluster (if enabled)."
   value       = var.enable_eks ? module.eks[0].oidc_issuer : null
@@ -36,4 +41,19 @@ output "rds_endpoint" {
 output "ecr_vpc_endpoint_ids" {
   description = "Map of ECR VPC endpoint IDs (if enabled)."
   value       = var.enable_ecr_vpce ? module.ecr_vpce[0].endpoint_ids : null
+}
+
+output "s3_vpc_endpoint_id" {
+  description = "ID of the S3 gateway endpoint (if enabled)."
+  value       = try(aws_vpc_endpoint.s3_gateway[0].id, null)
+}
+
+output "sts_vpc_endpoint_id" {
+  description = "ID of the STS interface endpoint (if enabled)."
+  value       = try(aws_vpc_endpoint.interface["sts"].id, null)
+}
+
+output "ec2_vpc_endpoint_id" {
+  description = "ID of the EC2 interface endpoint (if enabled)."
+  value       = try(aws_vpc_endpoint.interface["ec2"].id, null)
 }

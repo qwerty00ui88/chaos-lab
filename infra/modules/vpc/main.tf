@@ -1,3 +1,5 @@
+data "aws_region" "current" {}
+
 locals {
   base_tags = merge(var.tags, {
     Name = var.name
@@ -17,6 +19,14 @@ locals {
     for key, subnet in aws_subnet.public :
     key => subnet.id
   }
+
+  private_subnets_by_az_grouped = {
+    for s in aws_subnet.private : s.availability_zone => s.id...
+  }
+
+  endpoint_subnet_ids = [
+    for az, subnets in local.private_subnets_by_az_grouped : subnets[0]
+  ]
 }
 
 resource "aws_vpc" "this" {
@@ -152,6 +162,14 @@ resource "aws_security_group" "eks_nodes" {
   }
 
   ingress {
+    description     = "From EKS control plane to kubelets"
+    from_port       = 1025
+    to_port         = 65535
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+  }
+
+  ingress {
     description = "Cluster internal communication"
     from_port   = 0
     to_port     = 0
@@ -208,4 +226,63 @@ resource "aws_security_group_rule" "alb_to_eks_https" {
   protocol                 = "tcp"
   security_group_id        = aws_security_group.eks_nodes.id
   source_security_group_id = aws_security_group.alb.id
+}
+
+resource "aws_security_group_rule" "eks_to_alb_https" {
+  description              = "EKS nodes to ALB"
+  type                     = "ingress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.alb.id
+  source_security_group_id = aws_security_group.eks_nodes.id
+}
+
+resource "aws_vpc_endpoint" "s3" {
+  count             = var.create_s3_gateway_endpoint ? 1 : 0
+  vpc_id            = aws_vpc.this.id
+  service_name      = "com.amazonaws.${data.aws_region.current.name}.s3"
+  vpc_endpoint_type = "Gateway"
+
+  route_table_ids = compact([
+    aws_route_table.private.id,
+    length(aws_route_table.public) > 0 ? aws_route_table.public[0].id : null
+  ])
+
+  tags = merge(local.base_tags, {
+    Component = "vpc-endpoint"
+    Service   = "s3"
+  })
+}
+
+resource "aws_vpc_endpoint" "sts" {
+  count = var.create_interface_endpoints && length(local.endpoint_subnet_ids) > 0 ? 1 : 0
+
+  vpc_id              = aws_vpc.this.id
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.sts"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = local.endpoint_subnet_ids
+  security_group_ids  = [aws_security_group.eks_nodes.id]
+  private_dns_enabled = true
+
+  tags = merge(local.base_tags, {
+    Component = "vpc-endpoint",
+    Service   = "sts"
+  })
+}
+
+resource "aws_vpc_endpoint" "ec2" {
+  count = var.create_interface_endpoints && length(local.endpoint_subnet_ids) > 0 ? 1 : 0
+
+  vpc_id              = aws_vpc.this.id
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.ec2"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = local.endpoint_subnet_ids
+  security_group_ids  = [aws_security_group.eks_nodes.id]
+  private_dns_enabled = true
+
+  tags = merge(local.base_tags, {
+    Component = "vpc-endpoint",
+    Service   = "ec2"
+  })
 }

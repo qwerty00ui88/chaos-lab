@@ -1,6 +1,10 @@
+spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
 chaoslab:
   scripts:
-    base-dir: ${CHAOSLAB_SCRIPTS_BASE:../../../scripts}
+    terraform-working-dir: ../../../infra/onoff
     terraform:
       apply: onoff/apply.sh
       destroy: onoff/destroy.sh

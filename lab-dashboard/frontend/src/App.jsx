@@ -104,6 +104,21 @@ export default function App() {
   const [actionError, setActionError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const syncStackStatus = useCallback(async () => {
+    try {
+      const status = await httpGet('/api/terraform/status');
+      if (status && typeof status.enabled === 'boolean') {
+        setStackEnabled(status.enabled);
+        if (pendingState !== null && status.enabled === pendingState) {
+          setPendingState(null);
+          setActionMessage(`Target stack ${status.enabled ? 'ON' : 'OFF'} is ready.`);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to synchronise stack status', err);
+    }
+  }, [pendingState]);
+
   const podCrashDefaults = useMemo(
     () => ({ namespace: '', labelSelector: 'app=svc-order', maxPods: 1 }),
     []
@@ -116,6 +131,35 @@ export default function App() {
   );
 
   const latestTask = sortedTasks[0] ?? null;
+
+  useEffect(() => {
+    syncStackStatus();
+  }, [syncStackStatus]);
+
+  const lastSyncedTaskIdRef = useRef(null);
+
+  useEffect(() => {
+    if (!latestTask) {
+      return;
+    }
+    if (!['SUCCEEDED', 'FAILED'].includes(latestTask.state)) {
+      if (['terraform-apply', 'terraform-destroy'].includes(latestTask.name)) {
+        setPendingState(latestTask.name === 'terraform-apply');
+      }
+      return;
+    }
+    if (latestTask.name !== 'terraform-apply' && latestTask.name !== 'terraform-destroy') {
+      return;
+    }
+    if (latestTask.state === 'FAILED') {
+      setPendingState(null);
+    }
+    if (lastSyncedTaskIdRef.current === latestTask.id) {
+      return;
+    }
+    lastSyncedTaskIdRef.current = latestTask.id;
+    syncStackStatus();
+  }, [latestTask, syncStackStatus]);
 
   const kpiStats = useMemo(
     () => ({
@@ -137,7 +181,7 @@ export default function App() {
   );
 
   const environmentName = import.meta.env.VITE_ENVIRONMENT || import.meta.env.VITE_CHAOS_ENV || 'dev';
-  const targetAppUrl = import.meta.env.VITE_TARGET_URL || 'https://target.chaos-lab.org';
+  const targetAppUrl = import.meta.env.VITE_TARGET_URL;
   const targetAppHost = useMemo(() => targetAppUrl.replace(/^https?:\/\//, ''), [targetAppUrl]);
 
   const handleToggleStack = useCallback(
@@ -154,15 +198,15 @@ export default function App() {
         if (response.taskId) {
           await loadTaskDetails(response.taskId);
         }
-        setStackEnabled(nextEnabled);
       } catch (err) {
         setActionError(`Toggle failed: ${err.message}`);
+        setPendingState(null);
       } finally {
         setIsSubmitting(false);
-        setPendingState(null);
+        await syncStackStatus();
       }
     },
-    [loadTaskDetails, refreshTasks]
+    [loadTaskDetails, refreshTasks, syncStackStatus]
   );
 
   const handleChaosButton = useCallback(
@@ -197,7 +241,7 @@ export default function App() {
   const [liveLogs, setLiveLogs] = useState([]);
   const eventSourceRef = useRef(null);
 
-  const logStreamUrl = import.meta.env.VITE_LOG_STREAM_URL || 'http://localhost:8090/api/logs/stream';
+  const logStreamUrl = import.meta.env.VITE_LOG_STREAM_URL;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -309,6 +353,7 @@ export default function App() {
 
   const stackStatusLabel =
     pendingState !== null ? (pendingState ? 'Turning ON…' : 'Turning OFF…') : stackEnabled ? 'Online' : 'Offline';
+  const statusClass = pendingState !== null ? (pendingState ? 'pending-on' : 'pending-off') : stackEnabled ? 'online' : 'offline';
   const stackButtonLabel =
     pendingState === null
       ? stackEnabled
@@ -325,7 +370,7 @@ export default function App() {
       <aside className="sidebar">
         <div className="sidebar__brand">
           <div className="logo-dot">CL</div>
-          <div>
+          <div className="sidebar__brand-text">
             <span className="eyebrow">Chaos Lab</span>
             <h1>Control Center</h1>
             <p>Launch, disrupt, observe, and reset your target environment.</p>
@@ -340,7 +385,10 @@ export default function App() {
           </div>
           <div className="sidebar__state">
             <span className="sidebar__label">Stack status</span>
-            <span className={`status-pill ${stackEnabled ? 'online' : 'offline'}`}>{stackStatusLabel}</span>
+            <span className={`status-pill ${statusClass}`}>{stackStatusLabel}</span>
+            {pendingState !== null && (
+              <span className="status-note">{pendingState ? 'Provisioning resources… this can take several minutes.' : 'Destroying resources… hang tight.'}</span>
+            )}
           </div>
           <button
             type="button"

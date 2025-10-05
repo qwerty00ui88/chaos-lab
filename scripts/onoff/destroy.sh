@@ -1,5 +1,7 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -euo pipefail
+
+export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:${PATH:-}"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TF_DIR="${ROOT_DIR}/../infra/onoff"
@@ -9,7 +11,7 @@ VAR_FILES=("vars/base.tfvars" "vars/toggles.tfvars")
 
 cd "${TF_DIR}"
 
-CMD=("${TF_CMD}" destroy -auto-approve)
+CMD=("${TF_CMD}" destroy -input=false -auto-approve)
 for file in "${VAR_FILES[@]}"; do
   CMD+=("-var-file=${file}")
 done

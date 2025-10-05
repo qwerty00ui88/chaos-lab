@@ -28,6 +28,16 @@ output "security_group_ids" {
   value       = module.vpc.security_group_ids
 }
 
+output "private_route_table_id" {
+  description = "Private route table ID from the static VPC stack."
+  value       = module.vpc.private_route_table_id
+}
+
+output "public_route_table_id" {
+  description = "Public route table ID from the static VPC stack (if any)."
+  value       = module.vpc.public_route_table_id
+}
+
 output "dashboard_public_ip" {
   description = "Public IP address of the dashboard EC2 host"
   value       = var.enable_dashboard_instance ? module.dashboard_instance[0].public_ip : null

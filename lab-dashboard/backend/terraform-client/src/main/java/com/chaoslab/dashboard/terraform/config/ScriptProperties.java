@@ -2,18 +2,22 @@ package com.chaoslab.dashboard.terraform.config;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.util.StringUtils;
 
 @ConfigurationProperties(prefix = "chaoslab.scripts")
 public class ScriptProperties {
 
-    private Path baseDir = Paths.get("/opt/chaos-dashboard/scripts");
+    private static final Path DEFAULT_BASE_DIR = Paths.get("/opt/chaos-dashboard/scripts");
+
+    private Path baseDir = normalizeBase(DEFAULT_BASE_DIR);
 
     private Terraform terraform = new Terraform();
 
     private Helm helm = new Helm();
+
+    private Path terraformWorkingDir = DEFAULT_BASE_DIR.resolve("../infra/onoff").normalize();
 
     public Path getBaseDir() {
         return baseDir;
@@ -21,7 +25,7 @@ public class ScriptProperties {
 
     public void setBaseDir(Path baseDir) {
         if (baseDir != null) {
-            this.baseDir = baseDir;
+            this.baseDir = normalizeBase(baseDir);
         }
     }
 
@@ -45,11 +49,25 @@ public class ScriptProperties {
         if (!StringUtils.hasText(script)) {
             throw new IllegalArgumentException("Script path must not be empty");
         }
-        Path candidate = Paths.get(script);
+        Path candidate = Paths.get(script).normalize();
         if (candidate.isAbsolute()) {
-            return candidate.normalize();
+            return candidate;
         }
-        return baseDir.resolve(candidate).normalize();
+        return normalizeBase(baseDir).resolve(candidate).normalize();
+    }
+
+    public Path getTerraformWorkingDirectory() {
+        Path candidate = terraformWorkingDir.normalize();
+        if (candidate.isAbsolute()) {
+            return candidate;
+        }
+        return candidate.toAbsolutePath().normalize();
+    }
+
+    public void setTerraformWorkingDir(Path terraformWorkingDir) {
+        if (terraformWorkingDir != null) {
+            this.terraformWorkingDir = terraformWorkingDir.normalize();
+        }
     }
 
     public Path getTerraformApplyPath() {
@@ -62,6 +80,14 @@ public class ScriptProperties {
 
     public Path getHelmRolloutPath() {
         return resolve(helm.getRollout());
+    }
+
+    private Path normalizeBase(Path base) {
+        Path normalized = base.normalize();
+        if (normalized.isAbsolute()) {
+            return normalized;
+        }
+        return normalized.toAbsolutePath().normalize();
     }
 
     public static class Terraform {
