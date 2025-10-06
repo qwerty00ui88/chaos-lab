@@ -92,6 +92,9 @@ locals {
     ec2 = {
       service = "ec2"
     }
+    elb = {
+      service = "elasticloadbalancing"
+    }
   } : {}
 
   cluster_name   = var.enable_eks ? "${module.shared.project_name}-${var.environment}" : ""
