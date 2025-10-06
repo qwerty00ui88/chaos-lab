@@ -11,7 +11,7 @@ resource "aws_ec2_tag" "eks_cluster_subnets" {
 }
 
 resource "aws_ec2_tag" "alb_public_subnets" {
-  for_each = var.enable_eks && var.enable_alb ? toset(local.alb_subnet_ids) : toset([])
+  for_each = var.enable_eks && (var.enable_alb || var.enable_aws_load_balancer_controller) ? toset(local.alb_subnet_ids) : toset([])
 
   resource_id = each.value
   key         = "kubernetes.io/role/elb"

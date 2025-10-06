@@ -104,6 +104,18 @@ resource "helm_release" "aws_lb_controller" {
     {
       name  = "image.tag"
       value = "v2.8.1"
+    },
+    {
+      name  = "enableShield"
+      value = "false"
+    },
+    {
+      name  = "enableWaf"
+      value = "false"
+    },
+    {
+      name  = "enableWafV2"
+      value = "false"
     }
   ]
 }
