@@ -65,11 +65,13 @@ resource "helm_release" "aws_lb_controller" {
   count    = var.enable_eks && var.enable_aws_load_balancer_controller ? 1 : 0
   provider = helm.eks
 
-  name       = "aws-load-balancer-controller"
-  repository = "https://aws.github.io/eks-charts"
-  chart      = "aws-load-balancer-controller"
-  version    = "1.8.1"
-  namespace  = "kube-system"
+  name          = "aws-load-balancer-controller"
+  repository    = "https://aws.github.io/eks-charts"
+  chart         = "aws-load-balancer-controller"
+  version       = "1.8.1"
+  namespace     = "kube-system"
+  force_update  = true
+  recreate_pods = true
 
   depends_on = [
     kubernetes_service_account.aws_lb_controller,
@@ -114,8 +116,28 @@ resource "helm_release" "aws_lb_controller" {
       value = "false"
     },
     {
-      name  = "enableWafV2"
+      name  = "enableWafv2"
+      value = "false"
+    },
+    {
+      name  = "extraArgs.enable-shield"
+      value = "false"
+    },
+    {
+      name  = "extraArgs.enable-waf"
+      value = "false"
+    },
+    {
+      name  = "extraArgs.enable-wafv2"
       value = "false"
     }
   ]
+}
+
+resource "time_sleep" "wait_for_lb_controller" {
+  count = var.enable_eks && var.enable_aws_load_balancer_controller ? 1 : 0
+
+  create_duration = "20s"
+
+  depends_on = [helm_release.aws_lb_controller]
 }

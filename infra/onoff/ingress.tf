@@ -77,7 +77,7 @@ resource "kubernetes_ingress_v1" "target_app" {
 
   depends_on = [
     kubernetes_namespace.target_app,
-    helm_release.aws_lb_controller,
+    time_sleep.wait_for_lb_controller,
     helm_release.svc_user,
     helm_release.svc_order,
     helm_release.svc_catalog
