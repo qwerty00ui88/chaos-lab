@@ -29,6 +29,15 @@ run_terraform() {
   "${cmd[@]}"
 }
 
+ensure_terraform_initialized() {
+  if [[ -d .terraform ]]; then
+    return 0
+  fi
+
+  echo "Initializing terraform backend..."
+  "${TF_CMD}" init -input=false
+}
+
 wait_for_ingress_hostname() {
   local attempt
   for attempt in $(seq 1 "${INGRESS_WAIT_ATTEMPTS}"); do
@@ -87,6 +96,8 @@ if [[ -x "${UPDATE_KUBECONFIG_SCRIPT}" ]]; then
 fi
 
 cd "${TF_DIR}"
+
+ensure_terraform_initialized
 
 run_terraform apply
 
