@@ -7,7 +7,7 @@ variable "region" {
 variable "aws_profile" {
   description = "Named AWS CLI profile to use."
   type        = string
-  default     = "default"
+  default     = null
 }
 
 variable "state_bucket_name" {
