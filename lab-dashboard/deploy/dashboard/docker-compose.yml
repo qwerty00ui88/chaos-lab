@@ -25,7 +25,7 @@ services:
       - AWS_REGION=${AWS_REGION}
       - CHAOSLAB_SCRIPTS_BASE_DIR=/workspace/scripts
       - EKS_CLUSTER_NAME=${EKS_CLUSTER_NAME}
-      - RDS_PASSWORD_SSM_PARAMETER=${RDS_PASSWORD_SSM_PARAMETER}
+      - RDS_PASSWORD_SSM_PARAMETER=${RDS_PASSWORD_SSM_PARAMETER:-/chaos-lab/rds/password}
     volumes:
       - ./scripts:/workspace/scripts:ro
       - ./infra:/workspace/infra:ro
