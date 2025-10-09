@@ -1,7 +1,7 @@
 FROM eclipse-temurin:17-jre-alpine
 
-# Install dependencies including wget and unzip for Terraform installation
-RUN apk add --no-cache bash wget unzip
+# Install helper dependencies and AWS CLI for SSM lookups
+RUN apk add --no-cache bash wget unzip aws-cli
 
 # Install Terraform
 ARG TERRAFORM_VERSION=1.7.0
