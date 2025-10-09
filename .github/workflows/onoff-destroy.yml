@@ -1,0 +1,48 @@
+name: Toggle Stack Destroy
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: chaos-lab-toggle
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  DEFAULT_EKS_REGION: ${{ vars.AWS_REGION }}
+  TF_IN_AUTOMATION: true
+
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      RDS_PASSWORD_SSM_PARAMETER: ${{ secrets.RDS_PASSWORD_SSM_PARAMETER || vars.RDS_PASSWORD_SSM_PARAMETER }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: ./.github/actions/aws-setup
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.5
+
+      - name: Terraform init (toggle stack)
+        run: terraform -chdir=infra/onoff init -upgrade
+
+      - name: Terraform init (static stack)
+        run: terraform -chdir=infra/static init -upgrade
+
+      - name: Run toggle destroy script
+        run: bash scripts/onoff/destroy.sh
+
+      - name: Summarise
+        run: echo "Toggle stack destroy completed." >> "$GITHUB_STEP_SUMMARY"

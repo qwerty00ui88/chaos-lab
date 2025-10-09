@@ -37,12 +37,17 @@ output "security_group_ids" {
   }
 }
 
-output "private_route_table_id" {
-  description = "ID of the private route table."
-  value       = aws_route_table.private.id
+output "private_route_table_ids" {
+  description = "IDs of the private route tables."
+  value       = [aws_route_table.private.id]
 }
 
 output "public_route_table_id" {
   description = "ID of the public route table if created, otherwise null."
   value       = length(aws_route_table.public) > 0 ? aws_route_table.public[0].id : null
+}
+
+output "vpce_subnet_ids" {
+  description = "List of private subnet IDs for VPC endpoints, one per AZ."
+  value       = local.vpce_subnet_ids
 }

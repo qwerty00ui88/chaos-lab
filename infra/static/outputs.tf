@@ -30,7 +30,7 @@ output "security_group_ids" {
 
 output "private_route_table_id" {
   description = "Private route table ID from the static VPC stack."
-  value       = module.vpc.private_route_table_id
+  value       = module.vpc.private_route_table_ids[0]
 }
 
 output "public_route_table_id" {
@@ -46,4 +46,9 @@ output "dashboard_public_ip" {
 output "dashboard_instance_id" {
   description = "Instance ID of the dashboard EC2 host"
   value       = var.enable_dashboard_instance ? module.dashboard_instance[0].instance_id : null
+}
+
+output "vpce_subnet_ids" {
+  description = "List of private subnet IDs for VPC endpoints, one per AZ."
+  value       = module.vpc.vpce_subnet_ids
 }

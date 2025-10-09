@@ -25,9 +25,7 @@ output "nodegroup_name" {
 
 output "alb_dns_name" {
   description = "DNS name of the Application Load Balancer (if enabled)."
-  value = var.enable_eks && var.enable_aws_load_balancer_controller ? kubernetes_ingress_v1.target_app[0].status[0].load_balancer[0].ingress[0].hostname : (
-    var.enable_alb ? module.alb[0].alb_dns_name : null
-  )
+  value       = local.target_app_api_origin_domain != "" ? local.target_app_api_origin_domain : null
 }
 
 output "alb_target_group_arn" {
@@ -43,19 +41,4 @@ output "rds_endpoint" {
 output "ecr_vpc_endpoint_ids" {
   description = "Map of ECR VPC endpoint IDs (if enabled)."
   value       = var.enable_ecr_vpce ? module.ecr_vpce[0].endpoint_ids : null
-}
-
-output "s3_vpc_endpoint_id" {
-  description = "ID of the S3 gateway endpoint (if enabled)."
-  value       = try(aws_vpc_endpoint.s3_gateway[0].id, null)
-}
-
-output "sts_vpc_endpoint_id" {
-  description = "ID of the STS interface endpoint (if enabled)."
-  value       = try(aws_vpc_endpoint.interface["sts"].id, null)
-}
-
-output "ec2_vpc_endpoint_id" {
-  description = "ID of the EC2 interface endpoint (if enabled)."
-  value       = try(aws_vpc_endpoint.interface["ec2"].id, null)
 }

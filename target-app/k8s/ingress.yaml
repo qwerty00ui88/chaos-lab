@@ -1,0 +1,41 @@
+# Managed outside Terraform to avoid ALB finalizer issues.
+# Update project/environment specific annotations if you deploy to a different stage.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: target-app
+  namespace: target-app
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    alb.ingress.kubernetes.io/load-balancer-name: chaos-lab-dev-target-app
+    alb.ingress.kubernetes.io/group.name: chaos-lab-dev
+    alb.ingress.kubernetes.io/healthcheck-path: /actuator/health/readiness
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /api/user
+            pathType: Prefix
+            backend:
+              service:
+                name: svc-user
+                port:
+                  number: 8080
+          - path: /api/order
+            pathType: Prefix
+            backend:
+              service:
+                name: svc-order
+                port:
+                  number: 8080
+          - path: /api/catalog
+            pathType: Prefix
+            backend:
+              service:
+                name: svc-catalog
+                port:
+                  number: 8080

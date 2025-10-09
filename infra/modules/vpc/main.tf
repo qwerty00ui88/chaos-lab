@@ -24,9 +24,17 @@ locals {
     for s in aws_subnet.private : s.availability_zone => s.id...
   }
 
-  endpoint_subnet_ids = [
-    for az, subnets in local.private_subnets_by_az_grouped : subnets[0]
-  ]
+  # 모든 프라이빗 서브넷의 AZ 목록
+  private_azs = distinct([for s in aws_subnet.private : s.availability_zone])
+
+  # AZ별 프라이빗 서브넷 ID 리스트 (한 AZ에 여러 개 있을 수 있음)
+  private_subnets_by_az = {
+    for az in local.private_azs :
+    az => [for s in aws_subnet.private : s.id if s.availability_zone == az]
+  }
+
+  # VPC 엔드포인트용: 각 AZ에서 대표 서브넷 하나만 선택
+  vpce_subnet_ids = [for az, ids in local.private_subnets_by_az : ids[0]]
 }
 
 resource "aws_vpc" "this" {
@@ -244,53 +252,4 @@ resource "aws_security_group_rule" "eks_to_alb_https" {
   protocol                 = "tcp"
   security_group_id        = aws_security_group.alb.id
   source_security_group_id = aws_security_group.eks_nodes.id
-}
-
-resource "aws_vpc_endpoint" "s3" {
-  count             = var.create_s3_gateway_endpoint ? 1 : 0
-  vpc_id            = aws_vpc.this.id
-  service_name      = "com.amazonaws.${data.aws_region.current.name}.s3"
-  vpc_endpoint_type = "Gateway"
-
-  route_table_ids = compact([
-    aws_route_table.private.id,
-    length(aws_route_table.public) > 0 ? aws_route_table.public[0].id : null
-  ])
-
-  tags = merge(local.base_tags, {
-    Component = "vpc-endpoint"
-    Service   = "s3"
-  })
-}
-
-resource "aws_vpc_endpoint" "sts" {
-  count = var.create_interface_endpoints && length(local.endpoint_subnet_ids) > 0 ? 1 : 0
-
-  vpc_id              = aws_vpc.this.id
-  service_name        = "com.amazonaws.${data.aws_region.current.name}.sts"
-  vpc_endpoint_type   = "Interface"
-  subnet_ids          = local.endpoint_subnet_ids
-  security_group_ids  = [aws_security_group.eks_nodes.id]
-  private_dns_enabled = true
-
-  tags = merge(local.base_tags, {
-    Component = "vpc-endpoint",
-    Service   = "sts"
-  })
-}
-
-resource "aws_vpc_endpoint" "ec2" {
-  count = var.create_interface_endpoints && length(local.endpoint_subnet_ids) > 0 ? 1 : 0
-
-  vpc_id              = aws_vpc.this.id
-  service_name        = "com.amazonaws.${data.aws_region.current.name}.ec2"
-  vpc_endpoint_type   = "Interface"
-  subnet_ids          = local.endpoint_subnet_ids
-  security_group_ids  = [aws_security_group.eks_nodes.id]
-  private_dns_enabled = true
-
-  tags = merge(local.base_tags, {
-    Component = "vpc-endpoint",
-    Service   = "ec2"
-  })
 }

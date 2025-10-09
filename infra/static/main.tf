@@ -51,13 +51,24 @@ provider "aws" {
 module "vpc" {
   source = "../modules/vpc"
 
-  name                       = "${module.shared.project_name}-${var.environment}"
-  cidr_block                 = var.vpc_cidr
-  private_subnets            = var.private_subnets
-  public_subnets             = var.public_subnets
-  tags                       = module.shared.default_tags
-  create_interface_endpoints = false
-  create_s3_gateway_endpoint = false
+  name            = "${module.shared.project_name}-${var.environment}"
+  cidr_block      = var.vpc_cidr
+  private_subnets = var.private_subnets
+  public_subnets  = var.public_subnets
+  tags            = module.shared.default_tags
+}
+
+module "vpce" {
+  source = "../modules/vpce"
+
+  vpc_id             = module.vpc.vpc_id
+  subnet_ids         = module.vpc.vpce_subnet_ids
+  security_group_ids = [module.vpc.security_group_ids["eks_nodes"]]
+  route_table_ids    = module.vpc.private_route_table_ids
+  tags               = module.shared.default_tags
+
+  interface_services = ["sts", "elasticloadbalancing", "ec2"]
+  gateway_services   = ["s3"]
 }
 
 module "dashboard_instance" {
