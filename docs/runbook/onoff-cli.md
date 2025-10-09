@@ -12,6 +12,8 @@ scripts/onoff/destroy.sh  # 동일한 변수 파일을 사용하여 destroy
 - 추가 변수 파일이 필요한 경우 `TF_CLI_ARGS_apply` 등 Terraform 환경변수를 사용하세요.
 - `vars/toggles.tfvars` 안의 `enable_*` 값을 변경해 ON/OFF 조합을 조절합니다.
 - apply 스크립트는 ALB Ingress가 퍼블릭 호스트네임을 받을 때까지 기다렸다가 `target_app_api_origin_domain_override` 값을 이용해 한 번 더 `terraform apply`를 실행합니다. (필요 시 `DISABLE_CLOUDFRONT_REAPPLY=1`로 비활성화 가능)
+- RDS 비밀번호는 `TF_VAR_rds_password` 환경변수로 직접 주입하거나, `RDS_PASSWORD_SSM_PARAMETER=/path/to/param` 환경변수를 설정하면 스크립트가 SSM Parameter Store에서 자동으로 읽어옵니다.
+- 로컬/대시보드/GitHub Actions 각각의 자동 주입 패턴은 [Environment Variable Automation](./environment-automation.md)을 참고하세요.
 
 ## 2. Helm 롤아웃
 

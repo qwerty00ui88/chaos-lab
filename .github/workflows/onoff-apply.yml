@@ -18,6 +18,8 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    env:
+      RDS_PASSWORD_SSM_PARAMETER: ${{ secrets.RDS_PASSWORD_SSM_PARAMETER || vars.RDS_PASSWORD_SSM_PARAMETER }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

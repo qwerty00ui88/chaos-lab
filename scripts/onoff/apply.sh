@@ -16,6 +16,7 @@ INGRESS_NAMESPACE="${INGRESS_NAMESPACE:-target-app}"
 INGRESS_NAME="${INGRESS_NAME:-target-app}"
 INGRESS_WAIT_ATTEMPTS=${INGRESS_WAIT_ATTEMPTS:-30}
 INGRESS_WAIT_SECONDS=${INGRESS_WAIT_SECONDS:-10}
+RDS_PASSWORD_SSM_PARAMETER="${RDS_PASSWORD_SSM_PARAMETER:-}"
 
 run_terraform() {
   local action=$1
@@ -43,6 +44,43 @@ wait_for_ingress_hostname() {
   done
   return 1
 }
+
+ensure_rds_password() {
+  if [[ -n "${TF_VAR_rds_password:-}" ]]; then
+    return 0
+  fi
+
+  if [[ -n "${RDS_PASSWORD_SSM_PARAMETER}" ]]; then
+    if ! command -v aws >/dev/null 2>&1; then
+      echo "aws CLI not found; cannot read ${RDS_PASSWORD_SSM_PARAMETER} from SSM." >&2
+      exit 1
+    fi
+
+    local value
+    if ! value=$(aws ssm get-parameter \
+      --name "${RDS_PASSWORD_SSM_PARAMETER}" \
+      --with-decryption \
+      --query 'Parameter.Value' \
+      --output text 2>/dev/null); then
+      echo "Failed to fetch RDS password from SSM parameter ${RDS_PASSWORD_SSM_PARAMETER}." >&2
+      exit 1
+    fi
+
+    if [[ -z "${value}" || "${value}" == "None" ]]; then
+      echo "SSM parameter ${RDS_PASSWORD_SSM_PARAMETER} returned an empty value." >&2
+      exit 1
+    fi
+
+    export TF_VAR_rds_password="${value}"
+  fi
+
+  if [[ -z "${TF_VAR_rds_password:-}" ]]; then
+    echo "RDS password not provided. Set TF_VAR_rds_password or RDS_PASSWORD_SSM_PARAMETER." >&2
+    exit 1
+  fi
+}
+
+ensure_rds_password
 
 if [[ -x "${UPDATE_KUBECONFIG_SCRIPT}" ]]; then
   "${UPDATE_KUBECONFIG_SCRIPT}" "${TF_DIR}" "${EKS_REGION}" || true
