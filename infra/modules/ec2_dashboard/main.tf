@@ -1,5 +1,7 @@
 data "aws_caller_identity" "current" {}
 
+data "aws_region" "current" {}
+
 data "aws_ami" "ubuntu_jammy" {
   owners      = ["099720109477"]
   most_recent = true
@@ -143,6 +145,37 @@ resource "aws_iam_role_policy_attachment" "dashboard_terraform_state" {
 
   role       = aws_iam_role.dashboard[0].name
   policy_arn = aws_iam_policy.dashboard_terraform_state[0].arn
+}
+
+resource "aws_iam_policy" "dashboard_terraform_lock" {
+  count = var.create_instance_profile && var.terraform_lock_table != null ? 1 : 0
+
+  name        = "${var.name}-tflock-policy"
+  description = "Allow dashboard host to access Terraform DynamoDB lock table"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:DescribeTable"
+        ],
+        Resource = "arn:aws:dynamodb:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:table/${var.terraform_lock_table}"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "dashboard_terraform_lock" {
+  count = var.create_instance_profile && var.terraform_lock_table != null ? 1 : 0
+
+  role       = aws_iam_role.dashboard[0].name
+  policy_arn = aws_iam_policy.dashboard_terraform_lock[0].arn
 }
 
 resource "aws_iam_role_policy_attachment" "dashboard_ecr" {

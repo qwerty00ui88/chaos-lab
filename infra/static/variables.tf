@@ -190,3 +190,9 @@ variable "dashboard_terraform_state_bucket" {
   type        = string
   default     = "chaos-lab-terraform-state"
 }
+
+variable "dashboard_terraform_lock_table" {
+  description = "DynamoDB table used for Terraform state locking that the dashboard host must access"
+  type        = string
+  default     = "chaos-lab-terraform-locks"
+}

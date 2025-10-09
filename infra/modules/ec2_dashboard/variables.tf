@@ -76,3 +76,9 @@ variable "terraform_state_bucket" {
   type        = string
   default     = null
 }
+
+variable "terraform_lock_table" {
+  description = "Name of the DynamoDB table used for Terraform state locking."
+  type        = string
+  default     = null
+}
