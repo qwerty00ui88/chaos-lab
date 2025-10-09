@@ -86,5 +86,6 @@ module "dashboard_instance" {
   create_instance_profile = var.dashboard_create_instance_profile
   instance_profile_name   = var.dashboard_instance_profile_name
   iam_managed_policy_arns = var.dashboard_iam_managed_policy_arns
+  terraform_state_bucket  = var.dashboard_terraform_state_bucket
   tags                    = module.shared.default_tags
 }

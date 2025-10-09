@@ -110,6 +110,41 @@ resource "aws_iam_role_policy_attachment" "dashboard_logs" {
   policy_arn = aws_iam_policy.dashboard_logs[0].arn
 }
 
+resource "aws_iam_policy" "dashboard_terraform_state" {
+  count = var.create_instance_profile && var.terraform_state_bucket != null ? 1 : 0
+
+  name        = "${var.name}-tfstate-policy"
+  description = "Allow dashboard host to access Terraform state bucket"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["s3:ListBucket"]
+        Resource = "arn:aws:s3:::${var.terraform_state_bucket}"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:GetObjectVersion",
+          "s3:PutObject",
+          "s3:DeleteObject"
+        ]
+        Resource = "arn:aws:s3:::${var.terraform_state_bucket}/*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "dashboard_terraform_state" {
+  count = var.create_instance_profile && var.terraform_state_bucket != null ? 1 : 0
+
+  role       = aws_iam_role.dashboard[0].name
+  policy_arn = aws_iam_policy.dashboard_terraform_state[0].arn
+}
+
 resource "aws_iam_role_policy_attachment" "dashboard_ecr" {
   count = var.create_instance_profile ? 1 : 0
 
