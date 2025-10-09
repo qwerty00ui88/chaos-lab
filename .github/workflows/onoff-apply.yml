@@ -1,0 +1,55 @@
+name: Toggle Stack Apply
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: chaos-lab-toggle
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  DEFAULT_EKS_REGION: ${{ vars.AWS_REGION }}
+  TF_IN_AUTOMATION: true
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: ./.github/actions/aws-setup
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.5
+
+      - name: Terraform init (toggle stack)
+        run: terraform -chdir=infra/onoff init -upgrade
+
+      - name: Run toggle apply script
+        run: bash scripts/onoff/apply.sh
+
+      - name: Capture ingress hostname
+        id: ingress
+        run: |
+          set -euo pipefail
+          host=$(kubectl -n target-app get ingress target-app -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || true)
+          if [[ -n "$host" && "$host" != "<no value>" ]]; then
+            echo "ingress_host=$host" >> "$GITHUB_OUTPUT"
+            printf 'Ingress hostname: %s\n' "$host" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Ingress hostname not yet available."
+          fi
+
+      - name: Summarise
+        run: echo "Toggle stack apply completed." >> "$GITHUB_STEP_SUMMARY"

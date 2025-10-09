@@ -68,6 +68,7 @@ locals {
 
   private_subnet_ids = try(local.static_outputs.private_subnet_ids, [])
   public_subnet_ids  = try(local.static_outputs.public_subnet_ids, [])
+  vpce_subnet_ids    = try(local.static_outputs.vpce_subnet_ids, [])
 
   node_subnets_from_map = compact([
     try(local.subnet_ids_map["private-node-a"], null),
@@ -89,18 +90,6 @@ locals {
   rds_security_group_id         = try(local.security_groups["rds"], null)
   eks_cluster_security_group_id = var.enable_eks ? try(module.eks[0].cluster_security_group_id, null) : null
 
-  interface_endpoint_services = local.vpc_id != null && local.eks_node_security_group_id != null && var.enable_eks && var.enable_nodegroup ? {
-    sts = {
-      service = "sts"
-    }
-    ec2 = {
-      service = "ec2"
-    }
-    elb = {
-      service = "elasticloadbalancing"
-    }
-  } : {}
-
   cluster_name   = var.enable_eks ? "${module.shared.project_name}-${var.environment}" : ""
   nodegroup_name = var.enable_nodegroup ? "${module.shared.project_name}-${var.environment}-ng" : ""
 
@@ -111,7 +100,7 @@ locals {
   fluent_bit_kube_ca      = local.fluent_bit_cluster_name != "" ? try(module.eks[0].certificate_authority, "") : ""
 
   frontend_dist_path = "../../target-app/frontend/dist"
-  frontend_files     = fileset(local.frontend_dist_path, "**/*")
+  frontend_files     = try(fileset(local.frontend_dist_path, "**/*"), [])
   mime_types = {
     ".html" = "text/html"
     ".css"  = "text/css"
@@ -124,6 +113,17 @@ locals {
     ".jpeg" = "image/jpeg"
     ".gif"  = "image/gif"
   }
+}
+
+module "vpce" {
+  source = "../modules/vpce"
+
+  vpc_id             = local.vpc_id
+  subnet_ids         = local.vpce_subnet_ids
+  security_group_ids = [local.eks_node_security_group_id]
+  tags               = module.shared.default_tags
+
+  interface_services = var.enable_eks && var.enable_nodegroup ? ["logs"] : []
 }
 
 provider "kubernetes" {

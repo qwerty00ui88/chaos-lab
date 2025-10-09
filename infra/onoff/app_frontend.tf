@@ -1,12 +1,12 @@
 # S3 버킷 (Public Access 차단 유지)
 resource "aws_s3_bucket" "target_app_frontend" {
-  count  = var.enable_eks ? 1 : 0
+  count  = local.create_frontend_distribution ? 1 : 0
   bucket = "${module.shared.project_name}-${var.environment}-target-app-frontend"
 }
 
 # Block Public Access
 resource "aws_s3_bucket_public_access_block" "frontend" {
-  count  = var.enable_eks ? 1 : 0
+  count  = local.create_frontend_distribution ? 1 : 0
   bucket = aws_s3_bucket.target_app_frontend[0].id
 
   block_public_acls       = true
@@ -17,7 +17,7 @@ resource "aws_s3_bucket_public_access_block" "frontend" {
 
 # OAC 생성
 resource "aws_cloudfront_origin_access_control" "frontend" {
-  count = var.enable_eks ? 1 : 0
+  count = local.create_frontend_distribution ? 1 : 0
 
   name                              = "${module.shared.project_name}-${var.environment}-oac"
   description                       = "OAC for target-app frontend"
@@ -28,7 +28,7 @@ resource "aws_cloudfront_origin_access_control" "frontend" {
 
 # API 요청을 위한 Origin Request 정책 (헤더/쿠키/쿼리 전달)
 resource "aws_cloudfront_origin_request_policy" "api_policy" {
-  count = var.enable_eks ? 1 : 0
+  count = local.create_frontend_distribution ? 1 : 0
 
   name    = "${module.shared.project_name}-${var.environment}-api-origin-policy"
   comment = "Forward headers/cookies/query strings for API calls"
@@ -50,7 +50,7 @@ resource "aws_cloudfront_origin_request_policy" "api_policy" {
 }
 
 resource "aws_cloudfront_cache_policy" "api_cache_disabled" {
-  count = var.enable_eks ? 1 : 0
+  count = local.create_frontend_distribution ? 1 : 0
 
   name    = "${module.shared.project_name}-${var.environment}-api-cache-disabled"
   comment = "Disable caching for API forwarding"
@@ -76,17 +76,29 @@ resource "aws_cloudfront_cache_policy" "api_cache_disabled" {
 
 # CloudFront 배포
 locals {
-  target_app_api_origin_domain = var.enable_eks && var.enable_aws_load_balancer_controller ? kubernetes_ingress_v1.target_app[0].status[0].load_balancer[0].ingress[0].hostname : (var.enable_alb ? module.alb[0].alb_dns_name : "")
+  target_app_api_origin_domain_override = trimspace(var.target_app_api_origin_domain_override)
+  target_app_api_origin_domain = local.target_app_api_origin_domain_override != "" ? local.target_app_api_origin_domain_override : (
+    var.enable_alb ? module.alb[0].alb_dns_name : ""
+  )
+  create_frontend_distribution                 = var.enable_eks && local.target_app_api_origin_domain != ""
+  target_app_frontend_bucket_id                = try(aws_s3_bucket.target_app_frontend[0].id, null)
+  target_app_frontend_bucket_arn               = try(aws_s3_bucket.target_app_frontend[0].arn, null)
+  target_app_frontend_bucket_domain            = try(aws_s3_bucket.target_app_frontend[0].bucket_regional_domain_name, null)
+  target_app_frontend_distribution_arn         = try(aws_cloudfront_distribution.target_app_frontend[0].arn, null)
+  target_app_frontend_origin_id                = local.target_app_frontend_bucket_id != null ? "S3-${local.target_app_frontend_bucket_id}" : null
+  target_app_frontend_oac_id                   = try(aws_cloudfront_origin_access_control.frontend[0].id, null)
+  target_app_frontend_cache_policy_id          = try(aws_cloudfront_cache_policy.api_cache_disabled[0].id, null)
+  target_app_frontend_origin_request_policy_id = try(aws_cloudfront_origin_request_policy.api_policy[0].id, null)
 }
 
 resource "aws_cloudfront_distribution" "target_app_frontend" {
-  count = var.enable_eks ? 1 : 0
+  count = local.create_frontend_distribution ? 1 : 0
 
   # S3 정적 컨텐츠 오리진
   origin {
-    domain_name              = aws_s3_bucket.target_app_frontend[0].bucket_regional_domain_name
-    origin_id                = "S3-${aws_s3_bucket.target_app_frontend[0].id}"
-    origin_access_control_id = aws_cloudfront_origin_access_control.frontend[0].id
+    domain_name              = local.target_app_frontend_bucket_domain
+    origin_id                = local.target_app_frontend_origin_id
+    origin_access_control_id = local.target_app_frontend_oac_id
   }
 
   # ALB API 백엔드 오리진
@@ -108,7 +120,7 @@ resource "aws_cloudfront_distribution" "target_app_frontend" {
 
   # 기본 동작: S3로 정적 파일 요청 전달
   default_cache_behavior {
-    target_origin_id       = "S3-${aws_s3_bucket.target_app_frontend[0].id}"
+    target_origin_id       = local.target_app_frontend_origin_id
     viewer_protocol_policy = "redirect-to-https"
 
     allowed_methods = ["GET", "HEAD", "OPTIONS"]
@@ -128,8 +140,8 @@ resource "aws_cloudfront_distribution" "target_app_frontend" {
     cached_methods  = ["GET", "HEAD"] # 실제 캐시는 아래 정책에 의해 제어됨
 
     # Disable caching via custom policy + forward details with origin request policy
-    cache_policy_id          = aws_cloudfront_cache_policy.api_cache_disabled[0].id
-    origin_request_policy_id = aws_cloudfront_origin_request_policy.api_policy[0].id
+    cache_policy_id          = local.target_app_frontend_cache_policy_id
+    origin_request_policy_id = local.target_app_frontend_origin_request_policy_id
   }
 
   price_class = "PriceClass_200"
@@ -144,16 +156,13 @@ resource "aws_cloudfront_distribution" "target_app_frontend" {
     cloudfront_default_certificate = true
   }
 
-  depends_on = [
-    kubernetes_ingress_v1.target_app
-  ]
 }
 
 
 # S3 버킷 정책 (CloudFront OAC만 접근 허용)
 resource "aws_s3_bucket_policy" "frontend" {
-  count  = var.enable_eks ? 1 : 0
-  bucket = aws_s3_bucket.target_app_frontend[0].id
+  count  = local.create_frontend_distribution ? 1 : 0
+  bucket = local.target_app_frontend_bucket_id
 
   policy = jsonencode({
     Version = "2012-10-17",
@@ -164,10 +173,10 @@ resource "aws_s3_bucket_policy" "frontend" {
           Service = "cloudfront.amazonaws.com"
         },
         Action   = "s3:GetObject",
-        Resource = "${aws_s3_bucket.target_app_frontend[0].arn}/*",
+        Resource = "${local.target_app_frontend_bucket_arn}/*",
         Condition = {
           StringEquals = {
-            "AWS:SourceArn" = aws_cloudfront_distribution.target_app_frontend[0].arn
+            "AWS:SourceArn" = local.target_app_frontend_distribution_arn
           }
         }
       }
@@ -176,9 +185,9 @@ resource "aws_s3_bucket_policy" "frontend" {
 }
 
 resource "aws_s3_object" "target_app_frontend_files" {
-  for_each = var.enable_eks ? toset(local.frontend_files) : toset([])
+  for_each = local.create_frontend_distribution ? { for file in local.frontend_files : file => file } : {}
 
-  bucket       = aws_s3_bucket.target_app_frontend[0].id
+  bucket       = local.target_app_frontend_bucket_id
   key          = each.value
   source       = "${local.frontend_dist_path}/${each.value}"
   content_type = try(local.mime_types[regex("\\.[^.]+$$", each.value)], "application/octet-stream")

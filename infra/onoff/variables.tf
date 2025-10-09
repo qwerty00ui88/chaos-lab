@@ -69,6 +69,12 @@ variable "enable_aws_load_balancer_controller" {
   default     = true
 }
 
+variable "target_app_api_origin_domain_override" {
+  description = "Optional override for the target-app ingress hostname when managed outside Terraform."
+  type        = string
+  default     = ""
+}
+
 variable "cloudwatch_log_group_name" {
   description = "Optional name for the CloudWatch log group. Defaults to <project>-<env>-logs."
   type        = string

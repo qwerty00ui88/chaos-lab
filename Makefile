@@ -25,7 +25,14 @@ static-apply:
 	terraform -chdir=$(TF_STATIC_DIR) apply -var-file=vars/base.tfvars
 
 static-destroy:
-	terraform -chdir=$(TF_STATIC_DIR) destroy -var-file=vars/base.tfvars -auto-approve
+	@set -e; \
+	  VPC_ID=$$(terraform -chdir=$(TF_STATIC_DIR) output -raw vpc_id 2>/dev/null || true); \
+	  terraform -chdir=$(TF_STATIC_DIR) refresh -var-file=vars/base.tfvars; \
+	  terraform -chdir=$(TF_STATIC_DIR) destroy -var-file=vars/base.tfvars -auto-approve; \
+	  case "$$VPC_ID" in \
+	    vpc-*) ./scripts/wait_for_vpc_cleanup.sh "$$VPC_ID" ;; \
+	    *) echo "Skipping AWS cleanup wait; VPC ID not available." ;; \
+	  esac
 
 init-onoff:
 	terraform -chdir=$(TF_ONOFF_DIR) init
@@ -36,11 +43,18 @@ onoff-plan:
 
 onoff-apply:
 	@$(MAKE) update-kubeconfig
-	terraform -chdir=$(TF_ONOFF_DIR) apply -var-file=vars/base.tfvars -var-file=vars/toggles.tfvars
-	@$(MAKE) update-kubeconfig
+	bash scripts/onoff/apply.sh
 
 onoff-destroy:
+	@$(MAKE) update-kubeconfig
+	./scripts/onoff/delete_ingress.sh target-app target-app
+	terraform -chdir=$(TF_ONOFF_DIR) refresh -var-file=vars/base.tfvars -var-file=vars/toggles.tfvars
 	terraform -chdir=$(TF_ONOFF_DIR) destroy -var-file=vars/base.tfvars -var-file=vars/toggles.tfvars -auto-approve
+	@VPC_ID=$$(terraform -chdir=$(TF_STATIC_DIR) output -raw vpc_id 2>/dev/null || true); \
+	  case "$$VPC_ID" in \
+	    vpc-*) SERVICE_TAG_VALUES="logs,api,dkr" ./scripts/wait_for_vpc_cleanup.sh "$$VPC_ID" ;; \
+	    *) echo "Skipping AWS cleanup wait; VPC ID not available." ;; \
+	  esac
 
 fmt:
 	terraform -chdir=$(TF_STATIC_DIR) fmt
