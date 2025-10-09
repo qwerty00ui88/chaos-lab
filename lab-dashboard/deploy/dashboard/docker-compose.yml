@@ -1,4 +1,4 @@
-version: "3.9"
+version: '3.9'
 
 services:
   gateway:
@@ -6,7 +6,7 @@ services:
     container_name: chaos-dashboard-gateway
     restart: unless-stopped
     ports:
-      - "80:80"
+      - '80:80'
     depends_on:
       - terraform-client
       - chaos-injector
@@ -23,7 +23,7 @@ services:
     restart: unless-stopped
     environment:
       - AWS_REGION=${AWS_REGION}
-      - CHAOSLAB_SCRIPTS_BASE=/workspace/scripts
+      - CHAOSLAB_SCRIPTS_BASE_DIR=/workspace/scripts
       - EKS_CLUSTER_NAME=${EKS_CLUSTER_NAME}
     volumes:
       - ./scripts:/workspace/scripts:ro
@@ -46,7 +46,7 @@ services:
     container_name: chaos-dashboard-log-streamer
     restart: unless-stopped
     ports:
-      - "8090:8090"
+      - '8090:8090'
     environment:
       - AWS_REGION=${AWS_REGION}
       - LOGSTREAM_CLOUDWATCH_ENABLED=true
