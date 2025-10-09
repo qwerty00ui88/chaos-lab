@@ -38,7 +38,7 @@ module "shared" {
 
 provider "aws" {
   region  = var.region
-  profile = var.aws_profile
+  profile = var.aws_profile != null && var.aws_profile != "" ? var.aws_profile : null
 
   default_tags {
     tags = module.shared.default_tags
