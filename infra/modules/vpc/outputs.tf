@@ -29,10 +29,11 @@ output "public_subnet_ids_map" {
 }
 
 output "security_group_ids" {
-  description = "Security group IDs for ALB, EKS nodes, and RDS."
+  description = "Security group IDs for ALB, EKS nodes, VPC endpoints, and RDS."
   value = {
     alb       = aws_security_group.alb.id
     eks_nodes = aws_security_group.eks_nodes.id
+    vpce      = aws_security_group.vpce.id
     rds       = aws_security_group.rds.id
   }
 }

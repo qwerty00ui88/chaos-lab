@@ -207,6 +207,33 @@ resource "aws_security_group" "eks_nodes" {
   })
 }
 
+resource "aws_security_group" "vpce" {
+  name        = "${var.name}-vpce"
+  description = "Security group for VPC interface endpoints"
+  vpc_id      = aws_vpc.this.id
+
+  ingress {
+    description = "HTTPS access from within the VPC"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [var.cidr_block]
+  }
+
+  egress {
+    description = "Allow all outbound"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(local.base_tags, {
+    Component = "security-group"
+    Role      = "vpce"
+  })
+}
+
 resource "aws_security_group" "rds" {
   name        = "${var.name}-rds"
   description = "Security group for RDS access"

@@ -63,7 +63,7 @@ module "vpce" {
 
   vpc_id             = module.vpc.vpc_id
   subnet_ids         = module.vpc.vpce_subnet_ids
-  security_group_ids = [module.vpc.security_group_ids["eks_nodes"]]
+  security_group_ids = [module.vpc.security_group_ids["vpce"]]
   route_table_ids    = module.vpc.private_route_table_ids
   tags               = module.shared.default_tags
 
