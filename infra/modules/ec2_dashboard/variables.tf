@@ -70,3 +70,9 @@ variable "iam_managed_policy_arns" {
     error_message = "iam_managed_policy_arns can only be set when create_instance_profile is true."
   }
 }
+
+variable "terraform_state_bucket" {
+  description = "Name of the S3 bucket storing Terraform state that the dashboard host must access."
+  type        = string
+  default     = null
+}

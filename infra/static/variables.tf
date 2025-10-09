@@ -184,3 +184,9 @@ variable "dashboard_iam_managed_policy_arns" {
   type        = list(string)
   default     = []
 }
+
+variable "dashboard_terraform_state_bucket" {
+  description = "S3 bucket storing Terraform state that the dashboard host must access"
+  type        = string
+  default     = "chaos-lab-terraform-state"
+}
