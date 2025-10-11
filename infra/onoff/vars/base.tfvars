@@ -1,5 +1,5 @@
 region      = "ap-northeast-2"
-aws_profile = "default"
+aws_profile = null
 eks_version = "1.30"
 
 # CloudWatch Logs / Fluent Bit defaults

@@ -1,5 +1,5 @@
 region      = "ap-northeast-2"
-aws_profile = "default"
+aws_profile = null
 
 enable_dashboard_instance = true
 
