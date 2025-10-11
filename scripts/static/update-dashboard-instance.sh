@@ -164,6 +164,12 @@ if ${SYNC_REPO} && [[ -n "${REPO_ROOT}" && -d "${REPO_ROOT}" ]]; then
     chown -R ubuntu:ubuntu "${DASHBOARD_ROOT}/infra"
   fi
 
+  if [[ -d "${REPO_ROOT}/target-app" ]]; then
+    echo "[dashboard] Syncing target-app manifests from repository"
+    rsync -a --delete "${REPO_ROOT}/target-app/" "${DASHBOARD_ROOT}/target-app/"
+    chown -R ubuntu:ubuntu "${DASHBOARD_ROOT}/target-app"
+  fi
+
   DASHBOARD_DEPLOY_DIR="${REPO_ROOT}/lab-dashboard/deploy/dashboard"
   if [[ -d "${DASHBOARD_DEPLOY_DIR}" ]]; then
     if [[ -f "${DASHBOARD_DEPLOY_DIR}/docker-compose.yml" ]]; then
