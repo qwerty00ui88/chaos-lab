@@ -29,6 +29,7 @@ services:
     volumes:
       - ./scripts:/workspace/scripts:ro
       - ./infra:/workspace/infra:rw
+      - ./target-app:/workspace/target-app:ro
     networks:
       - chaos-dashboard
 
