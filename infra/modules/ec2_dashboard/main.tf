@@ -196,12 +196,18 @@ resource "aws_iam_policy" "dashboard_infra" {
           "ec2:CreateSecurityGroup",
           "ec2:CreateTags",
           "ec2:CreateLaunchTemplate",
+          "ec2:CreateLaunchTemplateVersion",
           "ec2:CreateVpcEndpoint",
           "ec2:DeleteSecurityGroup",
+          "ec2:DeleteLaunchTemplate",
+          "ec2:DeleteLaunchTemplateVersions",
           "ec2:DeleteTags",
           "ec2:DeleteVpcEndpoints",
+          "ec2:DescribeLaunchTemplates",
+          "ec2:DescribeLaunchTemplateVersions",
           "ec2:ModifyVpcEndpoint",
           "ec2:RevokeSecurityGroupIngress",
+          "ec2:RunInstances",
           "ec2:Describe*"
         ]
         Resource = "*"
@@ -215,6 +221,8 @@ resource "aws_iam_policy" "dashboard_infra" {
           "iam:CreatePolicy",
           "iam:CreateRole",
           "iam:GetRole",
+          "iam:GetPolicyVersion",
+          "iam:ListPolicyVersions",
           "iam:GetPolicy",
           "iam:GetOpenIDConnectProvider",
           "iam:ListAttachedRolePolicies",
