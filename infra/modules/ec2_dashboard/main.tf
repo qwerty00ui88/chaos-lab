@@ -178,6 +178,143 @@ resource "aws_iam_role_policy_attachment" "dashboard_terraform_lock" {
   policy_arn = aws_iam_policy.dashboard_terraform_lock[0].arn
 }
 
+resource "aws_iam_policy" "dashboard_infra" {
+  count = var.create_instance_profile ? 1 : 0
+
+  name        = "${var.name}-infra-policy"
+  description = "Allow dashboard host to provision chaos-lab toggle infrastructure"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "EC2Network"
+        Effect = "Allow"
+        Action = [
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:CreateSecurityGroup",
+          "ec2:CreateTags",
+          "ec2:CreateVpcEndpoint",
+          "ec2:DeleteSecurityGroup",
+          "ec2:DeleteTags",
+          "ec2:DeleteVpcEndpoints",
+          "ec2:ModifyVpcEndpoint",
+          "ec2:RevokeSecurityGroupIngress",
+          "ec2:Describe*"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "IAMProvisioning"
+        Effect = "Allow"
+        Action = [
+          "iam:AttachRolePolicy",
+          "iam:CreateOpenIDConnectProvider",
+          "iam:CreatePolicy",
+          "iam:CreateRole",
+          "iam:DeleteOpenIDConnectProvider",
+          "iam:DeletePolicy",
+          "iam:DeleteRole",
+          "iam:DeleteRolePolicy",
+          "iam:DetachRolePolicy",
+          "iam:PutRolePolicy",
+          "iam:TagOpenIDConnectProvider",
+          "iam:TagPolicy",
+          "iam:TagRole",
+          "iam:UntagOpenIDConnectProvider",
+          "iam:UntagPolicy",
+          "iam:UntagRole",
+          "iam:PassRole"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "EKSProvisioning"
+        Effect = "Allow"
+        Action = [
+          "eks:CreateCluster",
+          "eks:DeleteCluster",
+          "eks:DescribeCluster",
+          "eks:ListClusters",
+          "eks:UpdateClusterConfig",
+          "eks:UpdateClusterVersion",
+          "eks:TagResource",
+          "eks:UntagResource",
+          "eks:CreateNodegroup",
+          "eks:DeleteNodegroup",
+          "eks:DescribeNodegroup",
+          "eks:ListNodegroups",
+          "eks:UpdateNodegroupConfig",
+          "eks:UpdateNodegroupVersion"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "RDSProvisioning"
+        Effect = "Allow"
+        Action = [
+          "rds:AddTagsToResource",
+          "rds:CreateDBInstance",
+          "rds:CreateDBSubnetGroup",
+          "rds:DeleteDBInstance",
+          "rds:DeleteDBSubnetGroup",
+          "rds:DescribeDBInstances",
+          "rds:DescribeDBSubnetGroups",
+          "rds:ModifyDBInstance",
+          "rds:ModifyDBSubnetGroup",
+          "rds:RemoveTagsFromResource"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "CloudWatchLogs"
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:DeleteLogGroup",
+          "logs:DeleteLogStream",
+          "logs:DescribeLogGroups",
+          "logs:DescribeLogStreams",
+          "logs:PutRetentionPolicy",
+          "logs:DeleteRetentionPolicy",
+          "logs:TagLogGroup",
+          "logs:UntagLogGroup"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "ElasticLoadBalancing"
+        Effect = "Allow"
+        Action = [
+          "elasticloadbalancing:AddTags",
+          "elasticloadbalancing:CreateListener",
+          "elasticloadbalancing:CreateLoadBalancer",
+          "elasticloadbalancing:CreateTargetGroup",
+          "elasticloadbalancing:DeleteListener",
+          "elasticloadbalancing:DeleteLoadBalancer",
+          "elasticloadbalancing:DeleteTargetGroup",
+          "elasticloadbalancing:Describe*",
+          "elasticloadbalancing:ModifyListener",
+          "elasticloadbalancing:ModifyLoadBalancerAttributes",
+          "elasticloadbalancing:ModifyTargetGroup",
+          "elasticloadbalancing:ModifyTargetGroupAttributes",
+          "elasticloadbalancing:RegisterTargets",
+          "elasticloadbalancing:DeregisterTargets"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "dashboard_infra" {
+  count = var.create_instance_profile ? 1 : 0
+
+  role       = aws_iam_role.dashboard[0].name
+  policy_arn = aws_iam_policy.dashboard_infra[0].arn
+}
+
 resource "aws_iam_role_policy_attachment" "dashboard_ecr" {
   count = var.create_instance_profile ? 1 : 0
 
