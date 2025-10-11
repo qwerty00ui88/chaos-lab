@@ -132,19 +132,19 @@ module "vpce" {
 }
 
 data "aws_eks_cluster" "eks" {
-  for_each = var.enable_eks ? { main = local.cluster_name } : {}
+  for_each = var.enable_eks ? { main = module.eks[0].name } : {}
 
   name = each.value
 
-  depends_on = var.enable_eks ? [module.eks] : []
+  depends_on = [module.eks]
 }
 
 data "aws_eks_cluster_auth" "eks" {
-  for_each = var.enable_eks ? { main = local.cluster_name } : {}
+  for_each = var.enable_eks ? { main = module.eks[0].name } : {}
 
   name = each.value
 
-  depends_on = var.enable_eks ? [module.eks] : []
+  depends_on = [module.eks]
 }
 
 provider "kubernetes" {
@@ -153,7 +153,6 @@ provider "kubernetes" {
   host                   = local.fluent_bit_kube_host
   cluster_ca_certificate = local.fluent_bit_kube_ca != "" ? base64decode(local.fluent_bit_kube_ca) : null
   token                  = local.fluent_bit_kube_token != "" ? local.fluent_bit_kube_token : null
-  load_config_file       = false
 }
 
 provider "helm" {
@@ -163,6 +162,5 @@ provider "helm" {
     host                   = local.fluent_bit_kube_host
     cluster_ca_certificate = local.fluent_bit_kube_ca != "" ? base64decode(local.fluent_bit_kube_ca) : null
     token                  = local.fluent_bit_kube_token != "" ? local.fluent_bit_kube_token : null
-    load_config_file       = false
   }
 }
