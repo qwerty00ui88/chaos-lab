@@ -214,6 +214,7 @@ resource "aws_iam_policy" "dashboard_infra" {
           "iam:CreatePolicy",
           "iam:CreateRole",
           "iam:GetRole",
+          "iam:ListAttachedRolePolicies",
           "iam:ListRolePolicies",
           "iam:DeleteOpenIDConnectProvider",
           "iam:DeletePolicy",
