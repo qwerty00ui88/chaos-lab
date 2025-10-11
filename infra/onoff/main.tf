@@ -95,9 +95,14 @@ locals {
 
   eks_oidc_issuer = var.enable_eks ? try(module.eks[0].oidc_issuer, "") : ""
 
-  fluent_bit_cluster_name = var.enable_eks ? try(module.eks[0].name, "") : ""
-  fluent_bit_kube_host    = local.fluent_bit_cluster_name != "" ? try(module.eks[0].endpoint, "") : ""
-  fluent_bit_kube_ca      = local.fluent_bit_cluster_name != "" ? try(module.eks[0].certificate_authority, "") : ""
+  eks_cluster_endpoint = var.enable_eks ? try(data.aws_eks_cluster.eks["main"].endpoint, "") : ""
+  eks_cluster_ca_data  = var.enable_eks ? try(data.aws_eks_cluster.eks["main"].certificate_authority[0].data, "") : ""
+  eks_cluster_token    = var.enable_eks ? try(data.aws_eks_cluster_auth.eks["main"].token, "") : ""
+
+  fluent_bit_cluster_name = var.enable_eks ? try(data.aws_eks_cluster.eks["main"].name, local.cluster_name) : ""
+  fluent_bit_kube_host    = local.eks_cluster_endpoint
+  fluent_bit_kube_ca      = local.eks_cluster_ca_data
+  fluent_bit_kube_token   = local.eks_cluster_token
 
   frontend_dist_path = "../../target-app/frontend/dist"
   frontend_files     = try(fileset(local.frontend_dist_path, "**/*"), [])
@@ -126,24 +131,29 @@ module "vpce" {
   interface_services = var.enable_eks && var.enable_nodegroup ? ["logs"] : []
 }
 
+data "aws_eks_cluster" "eks" {
+  for_each = var.enable_eks ? { main = local.cluster_name } : {}
+
+  name = each.value
+
+  depends_on = var.enable_eks ? [module.eks] : []
+}
+
+data "aws_eks_cluster_auth" "eks" {
+  for_each = var.enable_eks ? { main = local.cluster_name } : {}
+
+  name = each.value
+
+  depends_on = var.enable_eks ? [module.eks] : []
+}
+
 provider "kubernetes" {
   alias = "eks"
 
   host                   = local.fluent_bit_kube_host
   cluster_ca_certificate = local.fluent_bit_kube_ca != "" ? base64decode(local.fluent_bit_kube_ca) : null
-
-  exec {
-    api_version = "client.authentication.k8s.io/v1"
-    command     = "aws"
-    args = [
-      "eks",
-      "get-token",
-      "--region",
-      var.region,
-      "--cluster-name",
-      local.fluent_bit_cluster_name
-    ]
-  }
+  token                  = local.fluent_bit_kube_token != "" ? local.fluent_bit_kube_token : null
+  load_config_file       = false
 }
 
 provider "helm" {
@@ -152,17 +162,7 @@ provider "helm" {
   kubernetes = {
     host                   = local.fluent_bit_kube_host
     cluster_ca_certificate = local.fluent_bit_kube_ca != "" ? base64decode(local.fluent_bit_kube_ca) : null
-    exec = {
-      api_version = "client.authentication.k8s.io/v1"
-      command     = "aws"
-      args = [
-        "eks",
-        "get-token",
-        "--region",
-        var.region,
-        "--cluster-name",
-        local.fluent_bit_cluster_name
-      ]
-    }
+    token                  = local.fluent_bit_kube_token != "" ? local.fluent_bit_kube_token : null
+    load_config_file       = false
   }
 }
