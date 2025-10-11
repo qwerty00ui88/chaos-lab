@@ -31,7 +31,10 @@ rm kubectl
 echo "[bootstrap] Installing Helm"
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
-install -d -m 0755 /opt/chaos-dashboard && install -d -m 0755 /opt/chaos-dashboard/scripts
+install -d -m 0755 /opt/chaos-dashboard
+install -d -m 0755 /opt/chaos-dashboard/scripts
+install -d -m 0755 /opt/chaos-dashboard/infra
+install -d -m 0755 /opt/chaos-dashboard/target-app
 chown -R ubuntu:ubuntu /opt/chaos-dashboard
 
 cat <<ENV >/opt/chaos-dashboard/.env
@@ -128,6 +131,12 @@ if [ -d "$${CLONE_PATH}/infra" ]; then
   echo "[bootstrap] Syncing infra directory"
   rsync -a --delete "$${CLONE_PATH}/infra/" /opt/chaos-dashboard/infra/
   chown -R ubuntu:ubuntu /opt/chaos-dashboard/infra
+fi
+
+if [ -d "$${CLONE_PATH}/target-app" ]; then
+  echo "[bootstrap] Syncing target-app directory"
+  rsync -a --delete "$${CLONE_PATH}/target-app/" /opt/chaos-dashboard/target-app/
+  chown -R ubuntu:ubuntu /opt/chaos-dashboard/target-app
 fi
 
 if [ -f "$COMPOSE_SRC" ]; then
