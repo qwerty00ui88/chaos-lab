@@ -33,3 +33,15 @@ resource "aws_security_group_rule" "eks_nodes_to_control_plane_api" {
   security_group_id        = module.eks[0].cluster_security_group_id
   source_security_group_id = local.eks_node_security_group_id
 }
+
+resource "aws_security_group_rule" "eks_dashboard_to_control_plane_api" {
+  count = var.enable_eks && local.dashboard_security_group_id != null ? 1 : 0
+
+  description              = "Allow dashboard host to reach EKS API server"
+  type                     = "ingress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  security_group_id        = module.eks[0].cluster_security_group_id
+  source_security_group_id = local.dashboard_security_group_id
+}

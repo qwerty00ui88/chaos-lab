@@ -52,3 +52,8 @@ output "vpce_subnet_ids" {
   description = "List of private subnet IDs for VPC endpoints, one per AZ."
   value       = module.vpc.vpce_subnet_ids
 }
+
+output "dashboard_security_group_id" {
+  description = "Security group ID associated with the dashboard EC2 host"
+  value       = var.enable_dashboard_instance ? module.dashboard_instance[0].security_group_id : null
+}
