@@ -60,8 +60,13 @@ data "terraform_remote_state" "static" {
 locals {
   static_outputs = data.terraform_remote_state.static.outputs
 
-  subnet_ids_map         = try(local.static_outputs.private_subnet_ids_map, {})
-  security_groups        = try(local.static_outputs.security_group_ids, {})
+  subnet_ids_map = try(local.static_outputs.private_subnet_ids_map, {})
+  security_groups = merge(
+    try(local.static_outputs.security_group_ids, {}),
+    local.static_outputs.dashboard_security_group_id != null ? {
+      dashboard = local.static_outputs.dashboard_security_group_id
+    } : {}
+  )
   private_route_table_id = try(local.static_outputs.private_route_table_id, null)
   public_route_table_id  = try(local.static_outputs.public_route_table_id, null)
   vpc_id                 = try(local.static_outputs.vpc_id, null)
@@ -88,6 +93,7 @@ locals {
   alb_security_group_id         = try(local.security_groups["alb"], null)
   eks_node_security_group_id    = try(local.security_groups["eks_nodes"], null)
   rds_security_group_id         = try(local.security_groups["rds"], null)
+  dashboard_security_group_id   = try(local.security_groups["dashboard"], null)
   eks_cluster_security_group_id = var.enable_eks ? try(module.eks[0].cluster_security_group_id, null) : null
 
   cluster_name   = var.enable_eks ? "${module.shared.project_name}-${var.environment}" : ""
