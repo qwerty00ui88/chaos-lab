@@ -96,6 +96,7 @@ resource "aws_iam_policy" "dashboard_logs" {
         Action = [
           "logs:DescribeLogGroups",
           "logs:DescribeLogStreams",
+          "logs:ListTagsForResource",
           "logs:FilterLogEvents",
           "logs:GetLogEvents"
         ],
@@ -212,6 +213,7 @@ resource "aws_iam_policy" "dashboard_infra" {
           "iam:CreateOpenIDConnectProvider",
           "iam:CreatePolicy",
           "iam:CreateRole",
+          "iam:GetRole",
           "iam:DeleteOpenIDConnectProvider",
           "iam:DeletePolicy",
           "iam:DeleteRole",
@@ -262,6 +264,7 @@ resource "aws_iam_policy" "dashboard_infra" {
           "rds:DescribeDBSubnetGroups",
           "rds:ModifyDBInstance",
           "rds:ModifyDBSubnetGroup",
+          "rds:ListTagsForResource",
           "rds:RemoveTagsFromResource"
         ]
         Resource = "*"
@@ -276,6 +279,7 @@ resource "aws_iam_policy" "dashboard_infra" {
           "logs:DeleteLogStream",
           "logs:DescribeLogGroups",
           "logs:DescribeLogStreams",
+          "logs:ListTagsForResource",
           "logs:PutRetentionPolicy",
           "logs:DeleteRetentionPolicy",
           "logs:TagLogGroup",
