@@ -32,7 +32,7 @@ services:
     volumes:
       - ./scripts:/workspace/scripts:ro
       - ./infra:/workspace/infra:rw
-      - ./target-app:/workspace/target-app:ro
+      - ./target-app:/workspace/target-app:rw
 
   chaos-injector:
     image: ${ECR_REGISTRY}/${ECR_REPOSITORY_PREFIX}-chaos-injector:${CHAOS_INJECTOR_TAG}
