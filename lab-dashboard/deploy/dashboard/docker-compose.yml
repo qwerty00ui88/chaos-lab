@@ -12,6 +12,8 @@ services:
       - chaos-injector
       - log-streamer
       - frontend
+    extra_hosts:
+      - 'terraform-client:host-gateway'
     environment:
       - LOG_STREAM_URL=http://log-streamer:8090/api/logs/stream
     networks:
@@ -21,6 +23,7 @@ services:
     image: ${ECR_REGISTRY}/${ECR_REPOSITORY_PREFIX}-terraform-client:${TERRAFORM_CLIENT_TAG}
     container_name: chaos-dashboard-terraform-client
     restart: unless-stopped
+    network_mode: host
     environment:
       - AWS_REGION=${AWS_REGION}
       - CHAOSLAB_SCRIPTS_BASE_DIR=/workspace/scripts
@@ -30,8 +33,6 @@ services:
       - ./scripts:/workspace/scripts:ro
       - ./infra:/workspace/infra:rw
       - ./target-app:/workspace/target-app:ro
-    networks:
-      - chaos-dashboard
 
   chaos-injector:
     image: ${ECR_REGISTRY}/${ECR_REPOSITORY_PREFIX}-chaos-injector:${CHAOS_INJECTOR_TAG}
