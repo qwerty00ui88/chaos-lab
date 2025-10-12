@@ -92,7 +92,7 @@ ensure_rds_password() {
 ensure_rds_password
 
 if [[ -x "${UPDATE_KUBECONFIG_SCRIPT}" ]]; then
-  "${UPDATE_KUBECONFIG_SCRIPT}" "${TF_DIR}" "${EKS_REGION}" || true
+  "${UPDATE_KUBECONFIG_SCRIPT}" "${TF_DIR}" "${EKS_REGION}"
 fi
 
 cd "${TF_DIR}"
@@ -102,7 +102,7 @@ ensure_terraform_initialized
 run_terraform apply
 
 if [[ -x "${UPDATE_KUBECONFIG_SCRIPT}" ]]; then
-  "${UPDATE_KUBECONFIG_SCRIPT}" "${TF_DIR}" "${EKS_REGION}" || true
+  "${UPDATE_KUBECONFIG_SCRIPT}" "${TF_DIR}" "${EKS_REGION}"
 fi
 
 if [[ ! -f "${MANIFEST_PATH}" ]]; then

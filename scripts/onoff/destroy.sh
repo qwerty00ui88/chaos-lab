@@ -56,7 +56,7 @@ ensure_rds_password() {
 ensure_rds_password
 
 if [[ -x "${UPDATE_KUBECONFIG_SCRIPT}" ]]; then
-  "${UPDATE_KUBECONFIG_SCRIPT}" "${TF_DIR}" "${EKS_REGION}" || true
+  "${UPDATE_KUBECONFIG_SCRIPT}" "${TF_DIR}" "${EKS_REGION}"
 fi
 
 if [[ -x "${DELETE_INGRESS_SCRIPT}" ]]; then
@@ -65,6 +65,8 @@ fi
 
 cd "${TF_DIR}"
 
+SKIP_REFRESH=${TF_SKIP_REFRESH:-0}
+
 REFRESH_CMD=("${TF_CMD}" refresh -input=false)
 DESTROY_CMD=("${TF_CMD}" destroy -input=false -auto-approve)
 for file in "${VAR_FILES[@]}"; do
@@ -72,7 +74,11 @@ for file in "${VAR_FILES[@]}"; do
   DESTROY_CMD+=("-var-file=${file}")
 done
 
-"${REFRESH_CMD[@]}"
+if [[ "${SKIP_REFRESH}" == "1" ]]; then
+  DESTROY_CMD+=("-refresh=false")
+else
+  "${REFRESH_CMD[@]}"
+fi
 "${DESTROY_CMD[@]}"
 
 if [[ -x "${CLEANUP_SCRIPT}" ]]; then
