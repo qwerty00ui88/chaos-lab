@@ -226,6 +226,7 @@ resource "aws_iam_policy" "dashboard_infra" {
           "iam:GetPolicy",
           "iam:GetOpenIDConnectProvider",
           "iam:ListAttachedRolePolicies",
+          "iam:ListInstanceProfilesForRole",
           "iam:ListRolePolicies",
           "iam:DeleteOpenIDConnectProvider",
           "iam:DeletePolicy",

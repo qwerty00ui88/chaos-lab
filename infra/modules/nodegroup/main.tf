@@ -24,7 +24,7 @@ data "aws_iam_policy_document" "assume_role" {
 }
 
 resource "aws_iam_role" "node" {
-  name               = "${var.cluster_name}-${var.name}-node-role"
+  name_prefix        = "${var.cluster_name}-${var.name}-node-role-"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 
   tags = merge(local.base_tags, {
