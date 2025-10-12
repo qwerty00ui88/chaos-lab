@@ -4,7 +4,7 @@ spring:
 
 chaoslab:
   scripts:
-    terraform-working-dir: ../../../infra/onoff
+    terraform-working-dir: /workspace/infra/onoff
     terraform:
       apply: onoff/apply.sh
       destroy: onoff/destroy.sh
