@@ -17,3 +17,8 @@ dashboard_terraform_client_tag  = "latest"
 dashboard_chaos_injector_tag    = "latest"
 dashboard_log_streamer_tag      = "latest"
 dashboard_frontend_tag          = "latest"
+
+dashboard_iam_managed_policy_arns = [
+  "arn:aws:iam::aws:policy/AmazonS3FullAccess",
+  "arn:aws:iam::aws:policy/CloudFrontFullAccess"
+]
