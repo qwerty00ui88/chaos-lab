@@ -2,6 +2,12 @@ locals {
   base_tags = merge(var.tags, {
     Component = "eks-nodegroup"
   })
+
+  # IAM Role name_prefix must be <= 38 chars to leave room for the random suffix AWS appends.
+  node_role_prefix = substr("${var.cluster_name}-${var.name}-node-role-", 0, 38)
+
+  # Launch template prefix is limited to 128 characters by the API, trim just in case.
+  launch_template_prefix = substr("${var.cluster_name}-${var.name}-", 0, 128)
 }
 
 data "aws_eks_cluster" "cluster" {
@@ -24,7 +30,7 @@ data "aws_iam_policy_document" "assume_role" {
 }
 
 resource "aws_iam_role" "node" {
-  name_prefix        = "${var.cluster_name}-${var.name}-node-role-"
+  name_prefix        = local.node_role_prefix
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 
   tags = merge(local.base_tags, {
@@ -44,7 +50,7 @@ resource "aws_iam_role_policy_attachment" "node" {
 }
 
 resource "aws_launch_template" "this" {
-  name_prefix = "${var.cluster_name}-${var.name}-"
+  name_prefix = local.launch_template_prefix
 
   image_id      = data.aws_ssm_parameter.eks_ami.value
   instance_type = var.instance_types[0]
