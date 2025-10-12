@@ -17,6 +17,8 @@ INGRESS_NAME="${INGRESS_NAME:-target-app}"
 INGRESS_WAIT_ATTEMPTS=${INGRESS_WAIT_ATTEMPTS:-30}
 INGRESS_WAIT_SECONDS=${INGRESS_WAIT_SECONDS:-10}
 RDS_PASSWORD_SSM_PARAMETER="${RDS_PASSWORD_SSM_PARAMETER:-}"
+FRONTEND_DIR="${REPO_ROOT}/target-app/frontend"
+FRONTEND_DIST_DIR="${FRONTEND_DIR}/dist"
 
 run_terraform() {
   local action=$1
@@ -36,6 +38,30 @@ ensure_terraform_initialized() {
 
   echo "Initializing terraform backend..."
   "${TF_CMD}" init -input=false
+}
+
+ensure_frontend_build() {
+  if [[ "${SKIP_FRONTEND_BUILD:-0}" == "1" ]]; then
+    return 0
+  fi
+
+  if [[ ! -d "${FRONTEND_DIR}" ]]; then
+    return 0
+  fi
+
+  if [[ -d "${FRONTEND_DIST_DIR}" ]] && find "${FRONTEND_DIST_DIR}" -mindepth 1 -print -quit >/dev/null; then
+    return 0
+  fi
+
+  if ! command -v npm >/dev/null 2>&1; then
+    echo "npm command not found; install Node.js in the terraform-client image or set SKIP_FRONTEND_BUILD=1." >&2
+    exit 1
+  fi
+
+  pushd "${FRONTEND_DIR}" >/dev/null
+  npm ci
+  npm run build
+  popd >/dev/null
 }
 
 wait_for_ingress_hostname() {
@@ -98,6 +124,8 @@ fi
 cd "${TF_DIR}"
 
 ensure_terraform_initialized
+
+ensure_frontend_build
 
 run_terraform apply
 

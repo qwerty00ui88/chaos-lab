@@ -1,7 +1,7 @@
 FROM eclipse-temurin:17-jre-alpine
 
 # Install helper dependencies and AWS CLI for SSM lookups
-RUN apk add --no-cache bash wget unzip aws-cli
+RUN apk add --no-cache bash wget unzip aws-cli nodejs npm
 
 # Install kubectl for ingress updates in apply.sh
 ARG KUBECTL_VERSION=v1.29.3
