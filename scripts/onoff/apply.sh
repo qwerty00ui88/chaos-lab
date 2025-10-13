@@ -71,10 +71,15 @@ wait_for_ingress_hostname() {
     host=$(kubectl -n "${INGRESS_NAMESPACE}" get ingress "${INGRESS_NAME}" \
       -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || true)
     host=$(printf '%s' "${host}" | tr -d '\r')
-    if [[ -n "${host}" && "${host}" != "<no value>" ]]; then
+
+    if [[ -n "${host}" && "${host}" != "<no value>" && "${host}" != "<pending>" ]]; then
       printf '%s' "${host}"
       return 0
     fi
+
+    local display_value
+    display_value="${host:-<empty>}"
+    echo "Waiting for ingress hostname (${attempt}/${INGRESS_WAIT_ATTEMPTS}) – current value: ${display_value}"
     sleep "${INGRESS_WAIT_SECONDS}"
   done
   return 1

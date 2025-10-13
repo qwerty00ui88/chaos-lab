@@ -75,6 +75,32 @@ variable "target_app_api_origin_domain_override" {
   default     = ""
 }
 
+variable "aws_auth_additional_roles" {
+  description = "Additional role mappings to append to aws-auth. Each item requires rolearn, username, and groups list."
+  type = list(object({
+    rolearn  = string
+    username = string
+    groups   = list(string)
+  }))
+  default = []
+}
+
+variable "aws_auth_map_users" {
+  description = "Optional user mappings to include in aws-auth ConfigMap."
+  type = list(object({
+    userarn  = string
+    username = string
+    groups   = list(string)
+  }))
+  default = []
+}
+
+variable "aws_auth_map_accounts" {
+  description = "Optional AWS account IDs to include in aws-auth ConfigMap."
+  type        = list(string)
+  default     = []
+}
+
 variable "cloudwatch_log_group_name" {
   description = "Optional name for the CloudWatch log group. Defaults to <project>-<env>-logs."
   type        = string
